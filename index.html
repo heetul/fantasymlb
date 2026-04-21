@@ -3,37 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB Fantasy - League Dashboard V6</title>
+    <title>MLB Fantasy - Full Stats Dashboard V7</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b; }
-        .container { max-width: 1300px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .container { max-width: 1400px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         h1 { text-align: center; color: #0f172a; margin-bottom: 30px; font-weight: 800; }
         
-        /* 주차 선택 버튼 */
         .week-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .week-btn { padding: 12px 24px; border: 1px solid #e2e8f0; border-radius: 30px; background: white; cursor: pointer; transition: 0.3s; font-weight: 600; color: #64748b; }
         .week-btn.active { background: #0f172a; color: white; border-color: #0f172a; }
 
-        /* 탭 버튼 */
         .tab-buttons { display: flex; justify-content: center; margin-top: 20px; margin-bottom: 15px; }
         .tab-buttons button { padding: 14px 40px; cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 700; transition: 0.2s; color: #475569; }
         .tab-buttons button.active { background: #f1f5f9; color: #0f172a; border-bottom: 3px solid #ef4444; }
         .tab-buttons button:first-child { border-radius: 12px 0 0 12px; }
         .tab-buttons button:last-child { border-radius: 0 12px 12px 0; }
 
-        /* 테이블 스타일 (상단 배치) */
         .table-wrapper { overflow-x: auto; margin-bottom: 50px; border: 1px solid #e2e8f0; border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; min-width: 950px; font-size: 14px; }
-        th, td { padding: 15px 8px; text-align: center; border: 1px solid #f1f5f9; }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; font-size: 13px; }
+        th, td { padding: 12px 6px; text-align: center; border: 1px solid #f1f5f9; }
         th { background-color: #f8fafc; color: #334155; font-weight: 700; }
         
-        .rank-cell { border-radius: 6px; padding: 6px 4px; display: block; color: #000; }
-        .stat-val { font-weight: 800; display: block; font-size: 15px; margin-bottom: 2px; }
-        .rank-info { font-size: 13px; font-weight: 700; opacity: 0.8; } /* 랭킹 폰트 크기 확대 */
+        .rank-cell { border-radius: 6px; padding: 6px 2px; display: block; color: #000; }
+        .stat-val { font-weight: 800; display: block; font-size: 14px; margin-bottom: 2px; }
+        .rank-info { font-size: 12px; font-weight: 700; opacity: 0.8; }
 
-        /* 차트 영역 스타일 (하단 배치) */
         .controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f1f5f9; padding: 15px; border-radius: 12px; }
         select { padding: 10px 20px; font-size: 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; }
         .chart-container { position: relative; height: 600px; width: 100%; padding: 15px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
@@ -42,9 +38,9 @@
 <body>
 
 <div class="container">
-    <h1>⚾ MLB Fantasy Dashboard</h1>
+    <h1>⚾ MLB Fantasy Dashboard (Full Stats)</h1>
 
-    <div class="week-selector" id="weekSelector">
+    <div class="week-selector">
         <button class="week-btn active" onclick="changeWeek('Total')">1-4주차 (통합)</button>
         <button class="week-btn" onclick="changeWeek(5)">5주차</button> 
     </div>
@@ -58,7 +54,7 @@
     <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0;">
 
     <div class="controls">
-        <label>📊 스탯별 심층 비교: </label>
+        <label>📊 항목별 랭킹 차트: </label>
         <select id="statSelect" onchange="renderDashboard()">
             <optgroup label="Hitter Stats">
                 <option value="R">R (득점)</option>
@@ -69,10 +65,13 @@
                 <option value="OPS">OPS (장타율 포함)</option>
             </optgroup>
             <optgroup label="Pitcher Stats">
-                <option value="ERA">ERA (평균자책점)</option>
-                <option value="WHIP">WHIP (출루허용율)</option>
+                <option value="IP">IP (이닝)</option>
+                <option value="ERA">ERA (방어율) ↓</option>
+                <option value="WHIP">WHIP (출루허용) ↓</option>
+                <option value="K_BB">K/BB (삼진/볼넷 비율)</option>
                 <option value="QS">QS (퀄리티 스타트)</option>
                 <option value="SV_H">SV+H (세이브+홀드)</option>
+                <option value="NW">NW (넷승)</option>
             </optgroup>
         </select>
     </div>
@@ -96,26 +95,28 @@
                 OPS: [0.709, 0.809, 0.731, 0.647, 0.759, 0.807, 0.754, 0.761, 0.753, 0.748, 0.735, 0.723, 0.804, 0.656]
             },
             pitcher: {
-                IP: [223.1, 210, 215, 191.2, 179.2, 216.2, 150, 170, 197.1, 169, 188, 204.1, 165, 163.2],
+                IP: [223.3, 210, 215, 191.7, 179.7, 216.7, 150, 170, 197.3, 169, 188, 204.3, 165, 163.7],
                 ERA: [3.99, 2.91, 3.60, 4.18, 3.61, 4.53, 4.56, 4.76, 4.06, 3.62, 3.40, 3.61, 3.33, 3.90],
                 WHIP: [1.22, 1.15, 1.30, 1.25, 1.06, 1.37, 1.41, 1.21, 1.31, 1.21, 1.23, 1.13, 1.06, 1.33],
-                K/BB: [3.22, 2.83, 2.47, 2.96, 3.02, 2.29, 2.16, 2.40, 2.77, 3.03, 2.15, 3.24, 3.54, 2.26]
+                K_BB: [3.22, 2.83, 2.47, 2.96, 3.02, 2.29, 2.16, 2.40, 2.77, 3.03, 2.15, 3.24, 3.54, 2.26],
                 QS: [15, 18, 10, 11, 11, 13, 9, 9, 10, 10, 11, 14, 12, 11],
                 SV_H: [17, 7, 9, 11, 15, 10, 10, 11, 12, 12, 16, 2, 11, 15],
                 NW: [-2, 9, 2, -4, 1, -5, -7, 0, -3, 2, 3, 7, 0, 4]
             }
         },
-        5: { teams: ["Cho Biden", "10 LuckyVickies", "HanManDoo Jr.", "daily sia", "Make MooMool Great Again", "Multi Champion", "Not Seoul Mayor", "Sakers_sAviOr", "Chief Residents", "Kook Surfer", "Sleeping Jihoo", "Murry-Ker Daehyun", "Real Twins", "Yubu airdoshi"], hitter: { R: Array(14).fill(0), HR: Array(14).fill(0), RBI: Array(14).fill(0), SB: Array(14).fill(0), OBP: Array(14).fill(0), OPS: Array(14).fill(0) }, pitcher: { ERA: Array(14).fill(0), WHIP: Array(14).fill(0), QS: Array(14).fill(0), SV_H: Array(14).fill(0) } }
+        5: { 
+            teams: ["Cho Biden", "10 LuckyVickies", "HanManDoo Jr.", "daily sia", "Make MooMool Great Again", "Multi Champion", "Not Seoul Mayor", "Sakers_sAviOr", "Chief Residents", "Kook Surfer", "Sleeping Jihoo", "Murry-Ker Daehyun", "Real Twins", "Yubu airdoshi"], 
+            hitter: { R: Array(14).fill(0), HR: Array(14).fill(0), RBI: Array(14).fill(0), SB: Array(14).fill(0), OBP: Array(14).fill(0), OPS: Array(14).fill(0) }, 
+            pitcher: { IP: Array(14).fill(0), ERA: Array(14).fill(0), WHIP: Array(14).fill(0), K_BB: Array(14).fill(0), QS: Array(14).fill(0), SV_H: Array(14).fill(0), NW: Array(14).fill(0) } 
+        }
     };
 
     let currentWeek = 'Total';
     let currentTableType = 'hitter';
     let myChart;
 
-    // 빨강(1위) -> 노랑(최하위) 그라데이션
     function getGradientColor(rank, total) {
         const ratio = (rank - 1) / (total - 1); 
-        // 상위권: 진한 빨강 (239, 68, 68) -> 하위권: 밝은 노랑 (254, 240, 138)
         const r = Math.round(239 + (254 - 239) * ratio);
         const g = Math.round(68 + (240 - 68) * ratio);
         const b = Math.round(68 + (138 - 68) * ratio);
@@ -177,7 +178,7 @@
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        min: (['OBP', 'OPS', 'WHIP'].includes(selectedStat)) ? Math.max(0, minVal - padding) : 0,
+                        min: (['OBP', 'OPS', 'WHIP', 'ERA'].includes(selectedStat)) ? Math.max(0, minVal - padding) : 0,
                         max: maxVal + padding,
                         grid: { display: false }
                     }
