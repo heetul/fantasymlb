@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLB Fantasy - Gradient Ranking Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1300px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #1e293b; margin-bottom: 30px; letter-spacing: -1px; }
+        
+        .week-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        .week-btn { padding: 10px 20px; border: 1px solid #e2e8f0; border-radius: 25px; background: white; cursor: pointer; transition: 0.3s; font-weight: 500; }
+        .week-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
+
+        .controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 10px; }
+        select { padding: 10px 15px; font-size: 15px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; background: white; cursor: pointer; }
+        
+        .chart-container { position: relative; height: 550px; width: 100%; margin-bottom: 40px; padding: 10px; border: 1px solid #f1f5f9; border-radius: 12px; }
+        
+        .tab-buttons { display: flex; justify-content: center; margin-bottom: 15px; }
+        .tab-buttons button { padding: 12px 35px; cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; transition: 0.2s; }
+        .tab-buttons button.active { background: #334155; color: white; border-color: #334155; }
+        .tab-buttons button:first-child { border-radius: 8px 0 0 8px; }
+        .tab-buttons button:last-child { border-radius: 0 8px 8px 0; }
+
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13px; }
+        th, td { padding: 10px 5px; text-align: center; border: 1px solid #edf2f7; }
+        th { background-color: #f1f5f9; color: #475569; font-weight: 700; }
+        
+        .rank-cell { font-weight: bold; border-radius: 4px; padding: 4px 2px; display: block; }
+        .stat-val { font-weight: 600; display: block; margin-bottom: 2px; }
+        .rank-info { font-size: 10px; opacity: 0.9; font-weight: normal; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⚾ MLB Fantasy: Weekly Gradient Rankings</h1>
+
+    <div class="week-selector" id="weekSelector">
+        <button class="week-btn active" onclick="changeWeek('Total')">1-4주차 (통합)</button>
+        <button class="week-btn" onclick="changeWeek(5)">5주차</button> 
+    </div>
+
+    <div class="controls">
+        <label>🔍 비교 스탯 선택: </label>
+        <select id="statSelect" onchange="renderDashboard()">
+            <optgroup label="Hitter Stats">
+                <option value="R">R (득점)</option>
+                <option value="HR">HR (홈런)</option>
+                <option value="RBI">RBI (타점)</option>
+                <option value="SB">SB (도루)</option>
+                <option value="OBP">OBP (출루율)</option>
+                <option value="OPS">OPS (장타율 포함)</option>
+            </optgroup>
+            <optgroup label="Pitcher Stats">
+                <option value="ERA">ERA (평균자책점)</option>
+                <option value="WHIP">WHIP (출루허용율)</option>
+                <option value="QS">QS (퀄리티 스타트)</option>
+                <option value="SV_H">SV+H (세이브+홀드)</option>
+            </optgroup>
+        </select>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="statChart"></canvas>
+    </div>
+
+    <div class="tab-buttons">
+        <button id="btnHitter" class="active" onclick="toggleTable('hitter')">타자 랭킹 (Color Map)</button>
+        <button id="btnPitcher" onclick="toggleTable('pitcher')">투수 랭킹 (Color Map)</button>
+    </div>
+
+    <div id="tableContainer" class="table-wrapper"></div>
+</div>
+
+<script>
+    Chart.register(ChartDataLabels);
+
+    const weeklyData = {
+        "Total": {
+            teams: ["Cho Biden", "10 LuckyVickies", "HanManDoo Jr.", "daily sia", "Make MooMool Great Again", "Multi Champion", "Not Seoul Mayor", "Sakers_sAviOr", "Chief Residents", "Kook Surfer", "Sleeping Jihoo", "Murry-Ker Daehyun", "Real Twins", "Yubu airdoshi"],
+            hitter: {
+                R: [87, 110, 94, 83, 114, 111, 115, 108, 85, 113, 102, 80, 94, 89],
+                HR: [24, 35, 18, 11, 28, 37, 29, 25, 27, 24, 29, 21, 29, 19],
+                RBI: [95, 92, 81, 76, 103, 93, 100, 93, 96, 77, 99, 93, 116, 89],
+                SB: [14, 9, 12, 16, 21, 15, 8, 18, 13, 26, 12, 26, 17, 10],
+                OBP: [0.324, 0.347, 0.336, 0.307, 0.331, 0.344, 0.336, 0.349, 0.336, 0.338, 0.331, 0.325, 0.347, 0.310],
+                OPS: [0.709, 0.809, 0.731, 0.647, 0.759, 0.807, 0.754, 0.761, 0.753, 0.748, 0.735, 0.723, 0.804, 0.656]
+            },
+            pitcher: {
+                ERA: [3.99, 2.91, 3.60, 4.18, 3.61, 4.53, 4.56, 4.76, 4.06, 3.62, 3.40, 3.61, 3.33, 3.90],
+                WHIP: [1.22, 1.15, 1.30, 1.25, 1.06, 1.37, 1.41, 1.21, 1.31, 1.21, 1.23, 1.13, 1.06, 1.33],
+                QS: [15, 18, 10, 11, 11, 13, 9, 9, 10, 10, 11, 14, 12, 11],
+                SV_H: [17, 7, 9, 11, 15, 10, 10, 11, 12, 12, 16, 2, 11, 15]
+            }
+        },
+        5: { teams: ["Cho Biden", "10 LuckyVickies", "HanManDoo Jr.", "daily sia", "Make MooMool Great Again", "Multi Champion", "Not Seoul Mayor", "Sakers_sAviOr", "Chief Residents", "Kook Surfer", "Sleeping Jihoo", "Murry-Ker Daehyun", "Real Twins", "Yubu airdoshi"], hitter: { R: Array(14).fill(0), HR: Array(14).fill(0), RBI: Array(14).fill(0), SB: Array(14).fill(0), OBP: Array(14).fill(0), OPS: Array(14).fill(0) }, pitcher: { ERA: Array(14).fill(0), WHIP: Array(14).fill(0), QS: Array(14).fill(0), SV_H: Array(14).fill(0) } }
+    };
+
+    let currentWeek = 'Total';
+    let currentTableType = 'hitter';
+    let myChart;
+
+    // 1위(빨강) -> 14위(파랑) 그라데이션 함수
+    function getGradientColor(rank, total) {
+        const ratio = (rank - 1) / (total - 1); // 0 (1위) ~ 1 (최하위)
+        // 빨강(239, 68, 68) -> 파랑(37, 99, 235)
+        const r = Math.round(239 + (37 - 239) * ratio);
+        const g = Math.round(68 + (99 - 68) * ratio);
+        const b = Math.round(68 + (235 - 68) * ratio);
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    function getRank(value, array, isLowerBetter = false) {
+        // 중복값이 있을 수 있으므로 정렬된 유니크 배열 대신 전체 배열 정렬 후 인덱스 찾기
+        const sorted = [...array].sort((a, b) => isLowerBetter ? a - b : b - a);
+        return sorted.indexOf(value) + 1;
+    }
+
+    function changeWeek(week) {
+        currentWeek = week;
+        document.querySelectorAll('.week-btn').forEach(btn => btn.classList.toggle('active', btn.innerText.includes(week)));
+        renderDashboard();
+    }
+
+    function toggleTable(type) {
+        currentTableType = type;
+        document.getElementById('btnHitter').classList.toggle('active', type === 'hitter');
+        document.getElementById('btnPitcher').classList.toggle('active', type === 'pitcher');
+        renderTable();
+    }
+
+    function renderDashboard() {
+        const selectedStat = document.getElementById('statSelect').value;
+        const weekData = weeklyData[currentWeek];
+        const ctx = document.getElementById('statChart').getContext('2d');
+        const dataSet = { ...weekData.hitter, ...weekData.pitcher };
+        
+        const combined = weekData.teams.map((team, i) => ({
+            name: team,
+            val: dataSet[selectedStat][i]
+        }));
+
+        const isLowerBetter = (selectedStat === 'ERA' || selectedStat === 'WHIP');
+        combined.sort((a, b) => isLowerBetter ? a.val - b.val : b.val - a.val);
+
+        const vals = combined.map(d => d.val);
+        const minVal = Math.min(...vals);
+        const maxVal = Math.max(...vals);
+        const range = maxVal - minVal;
+        const padding = range * 0.15;
+
+        if (myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: combined.map(d => d.name),
+                datasets: [{
+                    data: combined.map(d => d.val),
+                    backgroundColor: combined.map((d, i) => getGradientColor(i + 1, combined.length)),
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        min: (['OBP', 'OPS', 'WHIP'].includes(selectedStat)) ? Math.max(0, minVal - padding) : 0,
+                        max: maxVal + padding
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end', align: 'right',
+                        color: '#444', font: { weight: 'bold' }
+                    }
+                }
+            }
+        });
+        renderTable();
+    }
+
+    function renderTable() {
+        const weekData = weeklyData[currentWeek];
+        const dataSet = currentTableType === 'hitter' ? weekData.hitter : weekData.pitcher;
+        const keys = Object.keys(dataSet);
+        const totalTeams = weekData.teams.length;
+        
+        let html = '<table><thead><tr><th>Team Name</th>';
+        keys.forEach(k => html += `<th>${k}</th>`);
+        html += '</tr></thead><tbody>';
+
+        weekData.teams.forEach((team, idx) => {
+            html += `<tr><td style="text-align:left; font-weight:700; background:#fcfcfc;">${team}</td>`;
+            keys.forEach(k => {
+                const val = dataSet[k][idx];
+                const isLowerBetter = (k === 'ERA' || k === 'WHIP');
+                const rank = getRank(val, dataSet[k], isLowerBetter);
+                const bgColor = getGradientColor(rank, totalTeams);
+                
+                html += `<td>
+                    <div class="rank-cell" style="background:${bgColor}; color:white;">
+                        <span class="stat-val">${val}</span>
+                        <span class="rank-info">${rank}위</span>
+                    </div>
+                </td>`;
+            });
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        document.getElementById('tableContainer').innerHTML = html;
+    }
+
+    window.onload = renderDashboard;
+</script>
+
+</body>
+</html>
