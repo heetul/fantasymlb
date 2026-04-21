@@ -3,51 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB Fantasy - Gradient Ranking Dashboard</title>
+    <title>MLB Fantasy - League Dashboard V6</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 1300px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #1e293b; margin-bottom: 30px; letter-spacing: -1px; }
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #1e293b; }
+        .container { max-width: 1300px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { text-align: center; color: #0f172a; margin-bottom: 30px; font-weight: 800; }
         
+        /* 주차 선택 버튼 */
         .week-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
-        .week-btn { padding: 10px 20px; border: 1px solid #e2e8f0; border-radius: 25px; background: white; cursor: pointer; transition: 0.3s; font-weight: 500; }
-        .week-btn.active { background: #1e293b; color: white; border-color: #1e293b; }
+        .week-btn { padding: 12px 24px; border: 1px solid #e2e8f0; border-radius: 30px; background: white; cursor: pointer; transition: 0.3s; font-weight: 600; color: #64748b; }
+        .week-btn.active { background: #0f172a; color: white; border-color: #0f172a; }
 
-        .controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 10px; }
-        select { padding: 10px 15px; font-size: 15px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; background: white; cursor: pointer; }
-        
-        .chart-container { position: relative; height: 550px; width: 100%; margin-bottom: 40px; padding: 10px; border: 1px solid #f1f5f9; border-radius: 12px; }
-        
-        .tab-buttons { display: flex; justify-content: center; margin-bottom: 15px; }
-        .tab-buttons button { padding: 12px 35px; cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 600; transition: 0.2s; }
-        .tab-buttons button.active { background: #334155; color: white; border-color: #334155; }
-        .tab-buttons button:first-child { border-radius: 8px 0 0 8px; }
-        .tab-buttons button:last-child { border-radius: 0 8px 8px 0; }
+        /* 탭 버튼 */
+        .tab-buttons { display: flex; justify-content: center; margin-top: 20px; margin-bottom: 15px; }
+        .tab-buttons button { padding: 14px 40px; cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 700; transition: 0.2s; color: #475569; }
+        .tab-buttons button.active { background: #f1f5f9; color: #0f172a; border-bottom: 3px solid #ef4444; }
+        .tab-buttons button:first-child { border-radius: 12px 0 0 12px; }
+        .tab-buttons button:last-child { border-radius: 0 12px 12px 0; }
 
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; font-size: 13px; }
-        th, td { padding: 10px 5px; text-align: center; border: 1px solid #edf2f7; }
-        th { background-color: #f1f5f9; color: #475569; font-weight: 700; }
+        /* 테이블 스타일 (상단 배치) */
+        .table-wrapper { overflow-x: auto; margin-bottom: 50px; border: 1px solid #e2e8f0; border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; min-width: 950px; font-size: 14px; }
+        th, td { padding: 15px 8px; text-align: center; border: 1px solid #f1f5f9; }
+        th { background-color: #f8fafc; color: #334155; font-weight: 700; }
         
-        .rank-cell { font-weight: bold; border-radius: 4px; padding: 4px 2px; display: block; }
-        .stat-val { font-weight: 600; display: block; margin-bottom: 2px; }
-        .rank-info { font-size: 10px; opacity: 0.9; font-weight: normal; }
+        .rank-cell { border-radius: 6px; padding: 6px 4px; display: block; color: #000; }
+        .stat-val { font-weight: 800; display: block; font-size: 15px; margin-bottom: 2px; }
+        .rank-info { font-size: 13px; font-weight: 700; opacity: 0.8; } /* 랭킹 폰트 크기 확대 */
+
+        /* 차트 영역 스타일 (하단 배치) */
+        .controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f1f5f9; padding: 15px; border-radius: 12px; }
+        select { padding: 10px 20px; font-size: 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; }
+        .chart-container { position: relative; height: 600px; width: 100%; padding: 15px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>⚾ MLB Fantasy: Weekly Gradient Rankings</h1>
+    <h1>⚾ MLB Fantasy Dashboard</h1>
 
     <div class="week-selector" id="weekSelector">
         <button class="week-btn active" onclick="changeWeek('Total')">1-4주차 (통합)</button>
         <button class="week-btn" onclick="changeWeek(5)">5주차</button> 
     </div>
 
+    <div class="tab-buttons">
+        <button id="btnHitter" class="active" onclick="toggleTable('hitter')">타자 스탯 랭킹</button>
+        <button id="btnPitcher" onclick="toggleTable('pitcher')">투수 스탯 랭킹</button>
+    </div>
+    <div id="tableContainer" class="table-wrapper"></div>
+
+    <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0;">
+
     <div class="controls">
-        <label>🔍 비교 스탯 선택: </label>
+        <label>📊 스탯별 심층 비교: </label>
         <select id="statSelect" onchange="renderDashboard()">
             <optgroup label="Hitter Stats">
                 <option value="R">R (득점)</option>
@@ -65,17 +76,9 @@
             </optgroup>
         </select>
     </div>
-
     <div class="chart-container">
         <canvas id="statChart"></canvas>
     </div>
-
-    <div class="tab-buttons">
-        <button id="btnHitter" class="active" onclick="toggleTable('hitter')">타자 랭킹 (Color Map)</button>
-        <button id="btnPitcher" onclick="toggleTable('pitcher')">투수 랭킹 (Color Map)</button>
-    </div>
-
-    <div id="tableContainer" class="table-wrapper"></div>
 </div>
 
 <script>
@@ -106,18 +109,17 @@
     let currentTableType = 'hitter';
     let myChart;
 
-    // 1위(빨강) -> 14위(파랑) 그라데이션 함수
+    // 빨강(1위) -> 노랑(최하위) 그라데이션
     function getGradientColor(rank, total) {
-        const ratio = (rank - 1) / (total - 1); // 0 (1위) ~ 1 (최하위)
-        // 빨강(239, 68, 68) -> 파랑(37, 99, 235)
-        const r = Math.round(239 + (37 - 239) * ratio);
-        const g = Math.round(68 + (99 - 68) * ratio);
-        const b = Math.round(68 + (235 - 68) * ratio);
+        const ratio = (rank - 1) / (total - 1); 
+        // 상위권: 진한 빨강 (239, 68, 68) -> 하위권: 밝은 노랑 (254, 240, 138)
+        const r = Math.round(239 + (254 - 239) * ratio);
+        const g = Math.round(68 + (240 - 68) * ratio);
+        const b = Math.round(68 + (138 - 68) * ratio);
         return `rgb(${r}, ${g}, ${b})`;
     }
 
     function getRank(value, array, isLowerBetter = false) {
-        // 중복값이 있을 수 있으므로 정렬된 유니크 배열 대신 전체 배열 정렬 후 인덱스 찾기
         const sorted = [...array].sort((a, b) => isLowerBetter ? a - b : b - a);
         return sorted.indexOf(value) + 1;
     }
@@ -152,8 +154,7 @@
         const vals = combined.map(d => d.val);
         const minVal = Math.min(...vals);
         const maxVal = Math.max(...vals);
-        const range = maxVal - minVal;
-        const padding = range * 0.15;
+        const padding = (maxVal - minVal) * 0.15;
 
         if (myChart) myChart.destroy();
 
@@ -164,7 +165,7 @@
                 datasets: [{
                     data: combined.map(d => d.val),
                     backgroundColor: combined.map((d, i) => getGradientColor(i + 1, combined.length)),
-                    borderRadius: 5
+                    borderRadius: 8
                 }]
             },
             options: {
@@ -174,14 +175,15 @@
                 scales: {
                     x: {
                         min: (['OBP', 'OPS', 'WHIP'].includes(selectedStat)) ? Math.max(0, minVal - padding) : 0,
-                        max: maxVal + padding
+                        max: maxVal + padding,
+                        grid: { display: false }
                     }
                 },
                 plugins: {
                     legend: { display: false },
                     datalabels: {
                         anchor: 'end', align: 'right',
-                        color: '#444', font: { weight: 'bold' }
+                        color: '#1e293b', font: { weight: '800', size: 12 }
                     }
                 }
             }
@@ -195,12 +197,12 @@
         const keys = Object.keys(dataSet);
         const totalTeams = weekData.teams.length;
         
-        let html = '<table><thead><tr><th>Team Name</th>';
+        let html = '<table><thead><tr><th style="width:180px;">Team Name</th>';
         keys.forEach(k => html += `<th>${k}</th>`);
         html += '</tr></thead><tbody>';
 
         weekData.teams.forEach((team, idx) => {
-            html += `<tr><td style="text-align:left; font-weight:700; background:#fcfcfc;">${team}</td>`;
+            html += `<tr><td style="text-align:left; font-weight:800; background:#fcfcfc; padding-left:15px;">${team}</td>`;
             keys.forEach(k => {
                 const val = dataSet[k][idx];
                 const isLowerBetter = (k === 'ERA' || k === 'WHIP');
@@ -208,7 +210,7 @@
                 const bgColor = getGradientColor(rank, totalTeams);
                 
                 html += `<td>
-                    <div class="rank-cell" style="background:${bgColor}; color:white;">
+                    <div class="rank-cell" style="background:${bgColor};">
                         <span class="stat-val">${val}</span>
                         <span class="rank-info">${rank}위</span>
                     </div>
