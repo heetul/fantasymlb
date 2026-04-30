@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB Fantasy - Accurate Rankings V10</title>
+    <title>MLB Fantasy - Weekly & Total Dashboard V11</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
@@ -11,35 +11,35 @@
         .container { max-width: 1400px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
         h1 { text-align: center; color: #0f172a; margin-bottom: 30px; font-weight: 800; }
         
-        /* 리그 순위표 스타일 */
-        .standings-wrapper { margin-bottom: 50px; background: #fff; border: 2px solid #0f172a; border-radius: 12px; overflow: hidden; }
+        /* 순위표 스타일 */
+        .standings-wrapper { margin-bottom: 40px; background: #fff; border: 2px solid #0f172a; border-radius: 12px; overflow: hidden; }
         .standings-header { background: #0f172a; color: white; padding: 15px; font-weight: 800; font-size: 18px; text-align: center; }
         .standings-table { width: 100%; border-collapse: collapse; }
-        .standings-table th { background: #f1f5f9; color: #475569; padding: 12px; font-size: 14px; }
-        .standings-table td { padding: 12px; text-align: center; border-bottom: 1px solid #f1f5f9; font-weight: 600; }
+        .standings-table th { background: #f1f5f9; color: #475569; padding: 12px; font-size: 13px; }
+        .standings-table td { padding: 10px; text-align: center; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 14px; }
         .division-tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; font-weight: normal; }
-        .hs-tag { background: #fee2e2; color: #ef4444; } /* 현석 리그 */
-        .jh-tag { background: #e0f2fe; color: #0ea5e9; } /* 지훈 리그 */
+        .hs-tag { background: #fee2e2; color: #ef4444; }
+        .jh-tag { background: #e0f2fe; color: #0ea5e9; }
 
-        /* 주차/탭 버튼 */
-        .week-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
-        .week-btn { padding: 12px 30px; border: 1px solid #e2e8f0; border-radius: 30px; background: white; cursor: pointer; transition: 0.3s; font-weight: 700; color: #64748b; }
-        .week-btn.active { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+        /* 주차 필터 버튼 */
+        .filter-section { margin-bottom: 30px; text-align: center; }
+        .filter-label { display: block; font-weight: 700; margin-bottom: 15px; color: #64748b; }
+        .week-selector { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .week-btn { padding: 10px 20px; border: 1px solid #e2e8f0; border-radius: 30px; background: white; cursor: pointer; transition: 0.3s; font-weight: 700; color: #64748b; font-size: 14px; }
+        .week-btn.active { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
 
         .tab-buttons { display: flex; justify-content: center; margin-bottom: 15px; }
         .tab-buttons button { padding: 14px 40px; cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc; font-weight: 700; transition: 0.2s; color: #475569; }
         .tab-buttons button.active { background: #f1f5f9; color: #0f172a; border-bottom: 3px solid #ef4444; }
 
-        /* 데이터 테이블 */
         .table-wrapper { overflow-x: auto; margin-bottom: 50px; border: 1px solid #e2e8f0; border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; min-width: 1100px; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; min-width: 1100px; }
         th, td { padding: 12px 6px; text-align: center; border: 1px solid #f1f5f9; }
         th { background-color: #f8fafc; color: #334155; font-weight: 700; }
         .rank-cell { border-radius: 6px; padding: 6px 2px; display: block; color: #000; }
         .stat-val { font-weight: 800; display: block; font-size: 14px; margin-bottom: 2px; }
         .rank-info { font-size: 12px; font-weight: 700; opacity: 0.8; }
 
-        /* 차트 */
         .controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f1f5f9; padding: 15px; border-radius: 12px; }
         select { padding: 10px 20px; font-size: 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; cursor: pointer; }
         .chart-container { position: relative; height: 600px; width: 100%; padding: 15px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
@@ -48,31 +48,35 @@
 <body>
 
 <div class="container">
-    <h1>⚾ MLB Fantasy Dashboard V10</h1>
+    <h1>⚾ MLB Fantasy Dashboard V11</h1>
 
-    <!-- [수정완료] 이미지(image_98abd0.png) 기반 전체 순위표 -->
+    <!-- 전체 순위표 (image_0f9174.png 기반) -->
     <div class="standings-wrapper">
-        <div class="standings-header">🏆 Overall Rankings (Week 5 Cumulative)</div>
+        <div class="standings-header">🏆 Overall Standing (Week 1-5 Cumulative)</div>
         <table class="standings-table">
             <thead>
                 <tr>
                     <th>Rank</th><th>Team Name</th><th>Division</th><th>W-L-T</th><th>Pct</th>
                 </tr>
             </thead>
-            <tbody id="standingsBody">
-                <!-- 스크립트로 렌더링 -->
-            </tbody>
+            <tbody id="standingsBody"></tbody>
         </table>
     </div>
 
-    <div class="week-selector">
-        <button class="week-btn active" onclick="updateView('Total')">1-5주 누적 기록</button>
-        <button class="week-btn" onclick="updateView('Week5')">5주차 Weekly</button>
+    <!-- 주차별 기록 필터 -->
+    <div class="filter-section">
+        <span class="filter-label">📅 기록 기간 선택</span>
+        <div class="week-selector" id="weekSelector">
+            <button class="week-btn active" onclick="updateView('Total')">전체 누적(1-5주)</button>
+            <button class="week-btn" onclick="updateView('W1-4')">1-4주차 통합</button>
+            <button class="week-btn" onclick="updateView('W5')">5주차 Weekly</button>
+            <!-- 6주차 버튼은 데이터 추가 시 자동 생성되도록 아래 스크립트에서 관리 가능 -->
+        </div>
     </div>
 
     <div class="tab-buttons">
-        <button id="btnHitter" class="active" onclick="toggleTable('hitter')">Hitter Statistics</button>
-        <button id="btnPitcher" onclick="toggleTable('pitcher')">Pitcher Statistics</button>
+        <button id="btnHitter" class="active" onclick="toggleTable('hitter')">Hitter Stats</button>
+        <button id="btnPitcher" onclick="toggleTable('pitcher')">Pitcher Stats</button>
     </div>
     <div id="tableContainer" class="table-wrapper"></div>
 
@@ -100,7 +104,7 @@
 <script>
     Chart.register(ChartDataLabels);
 
-    // [최종 데이터] image_98abd0.png에 따른 정확한 순위 및 정보
+    // 순위 데이터 (image_0f9174.png)
     const leagueStandings = [
         { rank: 1, name: "Real Twins", div: "현석", wlt: "41-25-4", pct: "0.614" },
         { rank: 2, name: "Murry-Ker Daehyun", div: "지훈", wlt: "38-28-4", pct: "0.571" },
@@ -118,10 +122,31 @@
         { rank: 14, name: "Not Seoul Mayor", div: "지훈", wlt: "26-41-3", pct: "0.393" }
     ];
 
-    // 스탯 데이터 정의 (기존 이미지 image_9849b7.png, image_984982.png 기반)
-    const weeklyData = {
-        "Total": {
-            teams: leagueStandings.map(s => s.name),
+    // 스탯 원본 데이터
+    const rawData = {
+        teams: leagueStandings.map(s => s.name),
+        // 1-4주 누적 (V7 참고)
+        W1_4: {
+            hitter: {
+                R: [94, 80, 102, 110, 111, 108, 87, 85, 113, 94, 83, 114, 89, 115],
+                HR: [29, 21, 29, 35, 37, 25, 24, 27, 24, 18, 11, 28, 19, 29],
+                RBI: [116, 93, 99, 92, 93, 93, 95, 96, 77, 81, 76, 103, 89, 100],
+                SB: [17, 26, 12, 9, 15, 18, 14, 13, 26, 12, 16, 21, 10, 8],
+                OBP: [0.347, 0.325, 0.331, 0.347, 0.344, 0.349, 0.324, 0.336, 0.338, 0.336, 0.307, 0.331, 0.310, 0.336],
+                OPS: [0.804, 0.723, 0.735, 0.809, 0.807, 0.761, 0.709, 0.753, 0.748, 0.731, 0.647, 0.759, 0.656, 0.754]
+            },
+            pitcher: {
+                IP: [165, 204.3, 188, 210, 216.7, 170, 223.3, 197.3, 169, 215, 191.7, 179.7, 163.7, 150],
+                ERA: [3.33, 3.61, 3.40, 2.91, 4.53, 4.76, 3.99, 4.06, 3.62, 3.60, 4.18, 3.61, 3.90, 4.56],
+                WHIP: [1.06, 1.13, 1.23, 1.15, 1.37, 1.21, 1.22, 1.31, 1.21, 1.30, 1.25, 1.06, 1.33, 1.41],
+                K_BB: [3.54, 3.24, 2.15, 2.83, 2.29, 2.40, 3.22, 2.77, 3.03, 2.47, 2.96, 3.02, 2.26, 2.16],
+                QS: [12, 14, 11, 18, 13, 9, 15, 10, 10, 10, 11, 11, 11, 9],
+                SV_H: [11, 2, 16, 7, 10, 11, 17, 12, 12, 9, 11, 15, 15, 10],
+                NW: [0, 7, 3, 9, -5, 0, -2, -3, 2, 2, -4, 1, 4, -7]
+            }
+        },
+        // 5주 누적 (image_9849b7, 984982)
+        Total: {
             hitter: {
                 R: [121, 119, 131, 150, 139, 143, 110, 111, 140, 121, 109, 158, 119, 150],
                 HR: [37, 30, 39, 45, 45, 37, 32, 34, 28, 26, 23, 39, 28, 40],
@@ -139,29 +164,51 @@
                 SV_H: [13, 2, 18, 10, 14, 14, 24, 13, 15, 9, 14, 21, 16, 16],
                 NW: [-2, 6, 4, 8, -6, 5, 1, -4, 0, 4, 0, 0, 1, -7]
             }
-        },
-        "Week5": { /* (이전 Weekly 로직 유지) */ }
+        }
+    };
+
+    // 주간 성적 계산기 (누적 - 이전누적)
+    function calculateWeekly(current, previous) {
+        const weekly = { hitter: {}, pitcher: {} };
+        // 타자
+        for(let k in current.hitter) {
+            weekly.hitter[k] = current.hitter[k].map((val, i) => {
+                if(k === 'OBP' || k === 'OPS') return val; // 비율 스탯은 누적값 사용 (정확한 계산 불가)
+                return Number((val - previous.hitter[k][i]).toFixed(1));
+            });
+        }
+        // 투수
+        for(let k in current.pitcher) {
+            weekly.pitcher[k] = current.pitcher[k].map((val, i) => {
+                if(k === 'ERA' || k === 'WHIP' || k === 'K_BB') return val; // 비율 스탯은 누적값 사용
+                return Number((val - previous.pitcher[k][i]).toFixed(1));
+            });
+        }
+        return weekly;
+    }
+
+    const calculatedWeekly = {
+        "W1-4": rawData.W1_4,
+        "W5": calculateWeekly(rawData.Total, rawData.W1_4)
     };
 
     let currentWeek = 'Total';
     let currentTableType = 'hitter';
     let myChart;
 
-    function renderStandings() {
-        document.getElementById('standingsBody').innerHTML = leagueStandings.map(s => `
-            <tr>
-                <td>${s.rank}</td>
-                <td style="text-align:left;">${s.name}</td>
-                <td><span class="division-tag ${s.div === '현석' ? 'hs-tag' : 'jh-tag'}">${s.div} 리그</span></td>
-                <td>${s.wlt}</td>
-                <td>${s.pct}</td>
-            </tr>
-        `).join('');
-    }
-
-    function updateView(week) {
-        currentWeek = week;
-        document.querySelectorAll('.week-btn').forEach(btn => btn.classList.toggle('active', btn.innerText.includes(week === 'Total' ? '누적' : '5주차')));
+    function updateView(view) {
+        currentWeek = view;
+        const btns = document.querySelectorAll('.week-btn');
+        btns.forEach(btn => {
+            const btnText = btn.innerText;
+            if((view === 'Total' && btnText.includes('전체')) || 
+               (view === 'W1-4' && btnText.includes('1-4')) || 
+               (view === 'W5' && btnText.includes('5주'))) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
         renderDashboard();
     }
 
@@ -179,33 +226,35 @@
 
     function renderDashboard() {
         const selectedStat = document.getElementById('statSelect').value;
-        const weekData = weeklyData[currentWeek] || weeklyData['Total'];
+        const dataSet = (currentWeek === 'Total' ? rawData.Total : calculatedWeekly[currentWeek]);
         const ctx = document.getElementById('statChart').getContext('2d');
-        const dataSet = { ...weekData.hitter, ...weekData.pitcher };
-        const combined = weekData.teams.map((team, i) => ({ name: team, val: dataSet[selectedStat][i] }));
+        const stats = { ...dataSet.hitter, ...dataSet.pitcher };
+        
+        const combined = rawData.teams.map((team, i) => ({ name: team, val: stats[selectedStat][i] }));
         const isLowerBetter = (selectedStat === 'ERA' || selectedStat === 'WHIP');
         combined.sort((a, b) => isLowerBetter ? a.val - b.val : b.val - a.val);
 
         if (myChart) myChart.destroy();
         myChart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: combined.map(d => d.name), datasets: [{ data: combined.map(d => d.val), backgroundColor: combined.map((d, i) => getGradientColor(i + 1, combined.length)), borderRadius: 8 }] },
+            data: { labels: combined.map(d => d.name), datasets: [{ data: combined.map(d => d.val), backgroundColor: combined.map((d, i) => getGradientColor(i + 1, 14)), borderRadius: 8 }] },
             options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'right', color: '#1e293b', font: { weight: '800' } } } }
         });
         renderTable();
     }
 
     function renderTable() {
-        const weekData = weeklyData[currentWeek] || weeklyData['Total'];
-        const dataSet = currentTableType === 'hitter' ? weekData.hitter : weekData.pitcher;
-        const keys = Object.keys(dataSet);
+        const dataSet = (currentWeek === 'Total' ? rawData.Total : calculatedWeekly[currentWeek]);
+        const stats = currentTableType === 'hitter' ? dataSet.hitter : dataSet.pitcher;
+        const keys = Object.keys(stats);
+        
         let html = '<table><thead><tr><th style="width:200px;">Team Name</th>' + keys.map(k => `<th>${k}</th>`).join('') + '</tr></thead><tbody>';
-        weekData.teams.forEach((team, idx) => {
+        rawData.teams.forEach((team, idx) => {
             const teamInfo = leagueStandings.find(s => s.name === team);
             html += `<tr><td style="text-align:left; font-weight:800; background:#fcfcfc; padding-left:15px;">${team} <span class="division-tag ${teamInfo.div === '현석' ? 'hs-tag' : 'jh-tag'}">${teamInfo.div}</span></td>`;
             keys.forEach(k => {
-                const val = dataSet[k][idx];
-                const rank = [...dataSet[k]].sort((a, b) => (k === 'ERA' || k === 'WHIP') ? a - b : b - a).indexOf(val) + 1;
+                const val = stats[k][idx];
+                const rank = [...stats[k]].sort((a, b) => (k === 'ERA' || k === 'WHIP') ? a - b : b - a).indexOf(val) + 1;
                 html += `<td><div class="rank-cell" style="background:${getGradientColor(rank, 14)};"><span class="stat-val">${val}</span><span class="rank-info">${rank}위</span></div></td>`;
             });
             html += '</tr>';
@@ -213,7 +262,10 @@
         document.getElementById('tableContainer').innerHTML = html + '</tbody></table>';
     }
 
-    window.onload = () => { renderStandings(); renderDashboard(); };
+    window.onload = () => {
+        document.getElementById('standingsBody').innerHTML = leagueStandings.map(s => `<tr><td>${s.rank}</td><td style="text-align:left;">${s.name} <span class="division-tag ${s.div === '현석' ? 'hs-tag' : 'jh-tag'}">${s.div} 리그</span></td><td>${s.wlt}</td><td>${s.pct}</td></tr>`).join('');
+        renderDashboard();
+    };
 </script>
 
 </body>
