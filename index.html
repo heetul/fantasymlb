@@ -98,159 +98,156 @@
 <script>
     Chart.register(ChartDataLabels);
 
-    // 1. 리그 기본 정보 데이터베이스 (image_0bc2a2.png 기준 명밀 매핑)
+    // 1. 단일 마스터 데이터베이스 (밀림 및 자바스크립트 충돌 방지 구조)
     const teamsDB = {
-        "Real Twins": { div: "현석", wlt: "48-31-5", pct: 0.601, rank: 1 },
-        "Murry-Ker Daehyun": { div: "지훈", wlt: "48-32-4", pct: 0.595, rank: 2 },
-        "Sleeping Jihoo": { div: "현석", wlt: "47-36-1", pct: 0.565, rank: 3 },
-        "10 LuckyVickies": { div: "현석", wlt: "44-36-4", pct: 0.548, rank: 4 },
-        "Sakers_sAviOr": { div: "지훈", wlt: "41-37-6", pct: 0.524, rank: 5 }, // 과거데이터 맵용
-        "Orange": { div: "지훈", wlt: "41-37-6", pct: 0.524, rank: 5 },
-        "Multi Champion": { div: "현석", wlt: "40-37-7", pct: 0.518, rank: 6 },
-        "Kook Surfer": { div: "현석", wlt: "39-40-5", pct: 0.494, rank: 7 },
-        "Chief Residents": { div: "지훈", wlt: "38-39-7", pct: 0.494, rank: 8 },
-        "Cho Biden": { div: "현석", wlt: "40-41-3", pct: 0.494, rank: 9 },
-        "daily sia": { div: "지훈", wlt: "36-43-5", pct: 0.458, rank: 10 },
-        "HanManDoo Jr.": { div: "현석", wlt: "37-44-3", pct: 0.458, rank: 11 },
-        "Not Seoul Mayor": { div: "지훈", wlt: "33-47-4", pct: 0.417, rank: 12 },
-        "Yubu airdoshi": { div: "지훈", wlt: "31-45-8", pct: 0.397, rank: 13 },
-        "Make MooMool Great Again": { div: "지훈", wlt: "30-44-10", pct: 0.417, rank: 14 }
-    };
-
-    const teamList = ["Cho Biden", "10 LuckyVickies", "HanManDoo Jr.", "daily sia", "Make MooMool Great Again", "Multi Champion", "Not Seoul Mayor", "Orange", "Chief Residents", "Kook Surfer", "Sleeping Jihoo", "Murry-Ker Daehyun", "Real Twins", "Yubu airdoshi"];
-
-    // 2. 고유 구단명 키(Key) 구조 데이터셋 (밀림 전면 차단)
-    const database = {
-        "W1-4": {
-            "Cho Biden": { hitter: { R:87, HR:24, RBI:95, SB:14, K:165, OBP:0.324, OPS:0.709 }, pitcher: { IP:223.3, ERA:3.99, WHIP:1.22, K_BB:3.22, QS:15, SV_H:17, NW:-2 } },
-            "10 LuckyVickies": { hitter: { R:110, HR:35, RBI:92, SB:9, K:186, OBP:0.347, OPS:0.809 }, pitcher: { IP:210, ERA:2.91, WHIP:1.15, K_BB:2.83, QS:18, SV_H:7, NW:9 } },
-            "HanManDoo Jr.": { hitter: { R:94, HR:18, RBI:81, SB:12, K:156, OBP:0.336, OPS:0.731 }, pitcher: { IP:215, ERA:3.60, WHIP:1.30, K_BB:2.47, QS:10, SV_H:9, NW:2 } },
-            "daily sia": { hitter: { R:83, HR:11, RBI:76, SB:16, K:180, OBP:0.307, OPS:0.647 }, pitcher: { IP:191.7, ERA:4.18, WHIP:1.25, K_BB:2.96, QS:11, SV_H:11, NW:-4 } },
-            "Make MooMool Great Again": { hitter: { R:114, HR:28, RBI:103, SB:21, K:202, OBP:0.331, OPS:0.759 }, pitcher: { IP:179.7, ERA:3.61, WHIP:1.06, K_BB:3.02, QS:11, SV_H:15, NW:1 } },
-            "Multi Champion": { hitter: { R:111, HR:37, RBI:93, SB:15, K:183, OBP:0.344, OPS:0.807 }, pitcher: { IP:216.7, ERA:4.53, WHIP:1.37, K_BB:2.29, QS:13, SV_H:10, NW:-5 } },
-            "Not Seoul Mayor": { hitter: { R:115, HR:29, RBI:100, SB:8, K:172, OBP:0.336, OPS:0.754 }, pitcher: { IP:150, ERA:4.56, WHIP:1.41, K_BB:2.16, QS:9, SV_H:10, NW:-7 } },
-            "Orange": { hitter: { R:108, HR:25, RBI:93, SB:18, K:175, OBP:0.349, OPS:0.761 }, pitcher: { IP:170, ERA:4.76, WHIP:1.21, K_BB:2.40, QS:9, SV_H:11, NW:0 } },
-            "Chief Residents": { hitter: { R:85, HR:27, RBI:96, SB:13, K:162, OBP:0.336, OPS:0.753 }, pitcher: { IP:197.3, ERA:4.06, WHIP:1.31, K_BB:2.77, QS:10, SV_H:12, NW:-3 } },
-            "Kook Surfer": { hitter: { R:113, HR:24, RBI:77, SB:26, K:186, OBP:0.338, OPS:0.748 }, pitcher: { IP:169, ERA:3.62, WHIP:1.21, K_BB:3.03, QS:10, SV_H:12, NW:2 } },
-            "Sleeping Jihoo": { hitter: { R:102, HR:29, RBI:99, SB:12, K:174, OBP:0.331, OPS:0.735 }, pitcher: { IP:188, ERA:3.40, WHIP:1.23, K_BB:2.15, QS:11, SV_H:16, NW:3 } },
-            "Murry-Ker Daehyun": { hitter: { R:80, HR:21, RBI:93, SB:26, K:182, OBP:0.325, OPS:0.723 }, pitcher: { IP:204.3, ERA:3.61, WHIP:1.13, K_BB:3.24, QS:14, SV_H:2, NW:7 } },
-            "Real Twins": { hitter: { R:94, HR:29, RBI:116, SB:17, K:136, OBP:0.347, OPS:0.804 }, pitcher: { IP:165, ERA:3.33, WHIP:1.06, K_BB:3.54, QS:12, SV_H:11, NW:0 } },
-            "Yubu airdoshi": { hitter: { R:89, HR:19, RBI:89, SB:10, K:174, OBP:0.310, OPS:0.656 }, pitcher: { IP:163.7, ERA:3.90, WHIP:1.33, K_BB:2.26, QS:11, SV_H:15, NW:4 } }
+        "Sleeping Jihoo": {
+            rank: 1, div: "현석", wlt: "66-44-2", pct: 0.598,
+            W1_4: { hitter: { R:102, HR:29, RBI:99, SB:12, K:174, OBP:0.331, OPS:0.735 }, pitcher: { IP:188, ERA:3.40, WHIP:1.23, K_BB:2.15, QS:11, SV_H:16, NW:3 } },
+            W5:   { hitter: { R:131, HR:39, RBI:123, SB:19, K:211, OBP:0.342, OPS:0.766 }, pitcher: { IP:261, ERA:4.10, WHIP:1.33, K_BB:2.19, QS:16, SV_H:18, NW:4 } },
+            W6:   { hitter: { R:162, HR:42, RBI:139, SB:23, K:262, OBP:0.340, OPS:0.750 }, pitcher: { IP:320.7, ERA:4.29, WHIP:1.35, K_BB:2.25, QS:18, SV_H:21, NW:-1 } },
+            W7:   { hitter: { R:189, HR:48, RBI:166, SB:25, K:312, OBP:0.339, OPS:0.755 }, pitcher: { IP:383.1, ERA:4.51, WHIP:1.37, K_BB:2.31, QS:21, SV_H:26, NW:-7 } },
+            Total:{ hitter: { R:218, HR:56, RBI:192, SB:30, K:352, OBP:0.342, OPS:0.767 }, pitcher: { IP:430.0, ERA:4.48, WHIP:1.34, K_BB:2.33, QS:24, SV_H:31, NW:-6 } }
         },
-        "W5_Cumu": {
-            "Cho Biden": { hitter: { R:110, HR:32, RBI:124, SB:22, K:218, OBP:0.327, OPS:0.716 }, pitcher: { IP:285, ERA:3.98, WHIP:1.25, K_BB:3.15, QS:18, SV_H:24, NW:1 } },
-            "10 LuckyVickies": { hitter: { R:150, HR:45, RBI:115, SB:11, K:220, OBP:0.363, OPS:0.832 }, pitcher: { IP:283.2, ERA:3.36, WHIP:1.17, K_BB:2.78, QS:22, SV_H:10, NW:8 } },
-            "HanManDoo Jr.": { hitter: { R:121, HR:26, RBI:100, SB:14, K:205, OBP:0.336, OPS:0.734 }, pitcher: { IP:273.2, ERA:3.78, WHIP:1.27, K_BB:2.79, QS:12, SV_H:9, NW:4 } },
-            "daily sia": { hitter: { R:109, HR:23, RBI:103, SB:22, K:230, OBP:0.313, OPS:0.688 }, pitcher: { IP:253, ERA:3.77, WHIP:1.21, K_BB:3.02, QS:17, SV_H:14, NW:0 } },
-            "Make MooMool Great Again": { hitter: { R:158, HR:39, RBI:139, SB:27, K:257, OBP:0.338, OPS:0.775 }, pitcher: { IP:236, ERA:3.85, WHIP:1.08, K_BB:3.10, QS:14, SV_H:21, NW:0 } },
-            "Multi Champion": { hitter: { R:139, HR:45, RBI:127, SB:24, K:226, OBP:0.344, OPS:0.804 }, pitcher: { IP:267.2, ERA:4.34, WHIP:1.32, K_BB:2.46, QS:16, SV_H:14, NW:-6 } },
-            "Not Seoul Mayor": { hitter: { R:150, HR:40, RBI:131, SB:9, K:218, OBP:0.339, OPS:0.775 }, pitcher: { IP:199, ERA:4.52, WHIP:1.44, K_BB:2.16, QS:12, SV_H:16, NW:-7 } },
-            "Orange": { hitter: { R:143, HR:37, RBI:129, SB:23, K:219, OBP:0.339, OPS:0.766 }, pitcher: { IP:233, ERA:4.17, WHIP:1.23, K_BB:2.37, QS:14, SV_H:14, NW:5 } },
-            "Chief Residents": { hitter: { R:111, HR:34, RBI:121, SB:17, K:204, OBP:0.334, OPS:0.757 }, pitcher: { IP:261.1, ERA:4.44, WHIP:1.42, K_BB:2.35, QS:13, SV_H:13, NW:-4 } },
-            "Kook Surfer": { hitter: { R:140, HR:28, RBI:104, SB:32, K:248, OBP:0.333, OPS:0.722 }, pitcher: { IP:214.2, ERA:3.98, WHIP:1.22, K_BB:3.01, QS:13, SV_H:15, NW:0 } },
-            "Sleeping Jihoo": { hitter: { R:131, HR:39, RBI:123, SB:19, K:211, OBP:0.342, OPS:0.766 }, pitcher: { IP:261, ERA:4.10, WHIP:1.33, K_BB:2.19, QS:16, SV_H:18, NW:4 } },
-            "Murry-Ker Daehyun": { hitter: { R:119, HR:30, RBI:122, SB:33, K:233, OBP:0.333, OPS:0.744 }, pitcher: { IP:260.2, ERA:3.66, WHIP:1.15, K_BB:3.15, QS:19, SV_H:2, NW:6 } },
-            "Real Twins": { hitter: { R:121, HR:37, RBI:145, SB:17, K:177, OBP:0.335, OPS:0.782 }, pitcher: { IP:211, ERA:3.84, WHIP:1.10, K_BB:3.24, QS:15, SV_H:13, NW:-2 } },
-            "Yubu airdoshi": { hitter: { R:119, HR:28, RBI:113, SB:13, K:217, OBP:0.324, OPS:0.694 }, pitcher: { IP:196, ERA:4.04, WHIP:1.33, K_BB:2.41, QS:13, SV_H:16, NW:1 } }
+        "Murry-Ker Daehyun": {
+            rank: 2, div: "지훈", wlt: "63-45-4", pct: 0.580,
+            W1_4: { hitter: { R:80, HR:21, RBI:93, SB:26, K:182, OBP:0.325, OPS:0.723 }, pitcher: { IP:204.3, ERA:3.61, WHIP:1.13, K_BB:3.24, QS:14, SV_H:2, NW:7 } },
+            W5:   { hitter: { R:119, HR:30, RBI:122, SB:33, K:233, OBP:0.333, OPS:0.744 }, pitcher: { IP:260.2, ERA:3.66, WHIP:1.15, K_BB:3.15, QS:19, SV_H:2, NW:6 } },
+            W6:   { hitter: { R:149, HR:41, RBI:160, SB:36, K:285, OBP:0.329, OPS:0.745 }, pitcher: { IP:322.3, ERA:3.69, WHIP:1.18, K_BB:2.87, QS:23, SV_H:2, NW:7 } },
+            W7:   { hitter: { R:180, HR:49, RBI:182, SB:42, K:331, OBP:0.331, OPS:0.752 }, pitcher: { IP:379.1, ERA:3.72, WHIP:1.20, K_BB:2.65, QS:28, SV_H:2, NW:9 } },
+            Total:{ hitter: { R:213, HR:58, RBI:206, SB:50, K:379, OBP:0.339, OPS:0.771 }, pitcher: { IP:432.3, ERA:3.96, WHIP:1.23, K_BB:2.55, QS:32, SV_H:2, NW:3 } }
         },
-        "W6_Cumu": {
-            "Cho Biden": { hitter: { R:136, HR:42, RBI:156, SB:26, K:266, OBP:0.340, OPS:0.754 }, pitcher: { IP:343.3, ERA:4.04, WHIP:1.26, K_BB:2.92, QS:21, SV_H:30, NW:0 } },
-            "10 LuckyVickies": { hitter: { R:190, HR:53, RBI:133, SB:11, K:252, OBP:0.372, OPS:0.852 }, pitcher: { IP:337.3, ERA:3.50, WHIP:1.19, K_BB:2.78, QS:26, SV_H:10, NW:8 } },
-            "HanManDoo Jr.": { hitter: { R:136, HR:30, RBI:118, SB:19, K:255, OBP:0.328, OPS:0.715 }, pitcher: { IP:332.3, ERA:3.76, WHIP:1.27, K_BB:3.02, QS:17, SV_H:9, NW:5 } },
-            "daily sia": { hitter: { R:139, HR:35, RBI:135, SB:26, K:271, OBP:0.321, OPS:0.727 }, pitcher: { IP:306, ERA:3.47, WHIP:1.21, K_BB:2.84, QS:22, SV_H:18, NW:-2 } },
-            "Make MooMool Great Again": { hitter: { R:194, HR:47, RBI:169, SB:33, K:319, OBP:0.341, OPS:0.780 }, pitcher: { IP:284.3, ERA:3.58, WHIP:1.10, K_BB:3.10, QS:18, SV_H:26, NW:-1 } },
-            "Multi Champion": { hitter: { R:160, HR:50, RBI:144, SB:28, K:275, OBP:0.335, OPS:0.770 }, pitcher: { IP:344.3, ERA:4.73, WHIP:1.40, K_BB:2.32, QS:19, SV_H:16, NW:-8 } },
-            "Not Seoul Mayor": { hitter: { R:192, HR:48, RBI:157, SB:9, K:264, OBP:0.353, OPS:0.803 }, pitcher: { IP:230.3, ERA:4.69, WHIP:1.46, K_BB:2.19, QS:14, SV_H:19, NW:-11 } },
-            "Orange": { hitter: { R:172, HR:42, RBI:148, SB:29, K:274, OBP:0.339, OPS:0.762 }, pitcher: { IP:304, ERA:3.94, WHIP:1.23, K_BB:2.59, QS:19, SV_H:15, NW:6 } },
-            "Chief Residents": { hitter: { R:135, HR:42, RBI:152, SB:21, K:243, OBP:0.333, OPS:0.765 }, pitcher: { IP:322.3, ERA:4.10, WHIP:1.38, K_BB:2.51, QS:19, SV_H:18, NW:2 } },
-            "Kook Surfer": { hitter: { R:178, HR:37, RBI:130, SB:36, K:288, OBP:0.342, OPS:0.748 }, pitcher: { IP:273.7, ERA:3.85, WHIP:1.22, K_BB:2.81, QS:18, SV_H:17, NW:2 } },
-            "Sleeping Jihoo": { hitter: { R:162, HR:42, RBI:139, SB:23, K:262, OBP:0.340, OPS:0.750 }, pitcher: { IP:320.7, ERA:4.29, WHIP:1.35, K_BB:2.25, QS:18, SV_H:21, NW:-1 } },
-            "Murry-Ker Daehyun": { hitter: { R:149, HR:41, RBI:160, SB:36, K:285, OBP:0.329, OPS:0.745 }, pitcher: { IP:322.3, ERA:3.69, WHIP:1.18, K_BB:2.87, QS:23, SV_H:2, NW:7 } },
-            "Real Twins": { hitter: { R:148, HR:42, RBI:178, SB:20, K:223, OBP:0.336, OPS:0.775 }, pitcher: { IP:250.3, ERA:3.81, WHIP:1.13, K_BB:3.28, QS:18, SV_H:14, NW:0 } },
-            "Yubu airdoshi": { hitter: { R:137, HR:35, RBI:136, SB:13, K:266, OBP:0.331, OPS:0.714 }, pitcher: { IP:234.7, ERA:4.07, WHIP:1.31, K_BB:2.50, QS:17, SV_H:18, NW:-1 } }
+        "10 LuckyVickies": {
+            rank: 3, div: "현석", wlt: "62-46-4", pct: 0.571,
+            W1_4: { hitter: { R:110, HR:35, RBI:92, SB:9, K:186, OBP:0.347, OPS:0.809 }, pitcher: { IP:210.0, ERA:2.91, WHIP:1.15, K_BB:2.83, QS:18, SV_H:7, NW:9 } },
+            W5:   { hitter: { R:150, HR:45, RBI:115, SB:11, K:220, OBP:0.363, OPS:0.832 }, pitcher: { IP:283.2, ERA:3.36, WHIP:1.17, K_BB:2.78, QS:22, SV_H:10, NW:8 } },
+            W6:   { hitter: { R:190, HR:53, RBI:133, SB:11, K:252, OBP:0.372, OPS:0.852 }, pitcher: { IP:337.3, ERA:3.50, WHIP:1.19, K_BB:2.78, QS:26, SV_H:10, NW:8 } },
+            W7:   { hitter: { R:226, HR:60, RBI:162, SB:15, K:315, OBP:0.367, OPS:0.833 }, pitcher: { IP:404.1, ERA:3.27, WHIP:1.15, K_BB:2.90, QS:33, SV_H:11, NW:12 } },
+            Total:{ hitter: { R:259, HR:69, RBI:187, SB:17, K:362, OBP:0.362, OPS:0.815 }, pitcher: { IP:476.0, ERA:3.18, WHIP:1.16, K_BB:2.91, QS:41, SV_H:12, NW:16 } }
         },
-        "W7_Cumu": {
-            "Cho Biden": { hitter: { R:164, HR:46, RBI:182, SB:33, K:311, OBP:0.343, OPS:0.758 }, pitcher: { IP:409.0, ERA:3.94, WHIP:1.24, K_BB:2.93, QS:26, SV_H:37, NW:2 } },
-            "10 LuckyVickies": { hitter: { R:226, HR:60, RBI:162, SB:15, K:315, OBP:0.367, OPS:0.833 }, pitcher: { IP:404.1, ERA:3.27, WHIP:1.15, K_BB:2.90, QS:33, SV_H:11, NW:12 } },
-            "HanManDoo Jr.": { hitter: { R:161, HR:35, RBI:143, SB:24, K:298, OBP:0.327, OPS:0.716 }, pitcher: { IP:401.1, ERA:3.81, WHIP:1.27, K_BB:3.03, QS:20, SV_H:11, NW:2 } },
-            "daily sia": { hitter: { R:157, HR:41, RBI:162, SB:34, K:320, OBP:0.323, OPS:0.732 }, pitcher: { IP:366.2, ERA:3.41, WHIP:1.20, K_BB:2.91, QS:25, SV_H:20, NW:1 } },
-            "Make MooMool Great Again": { hitter: { R:225, HR:57, RBI:196, SB:40, K:370, OBP:0.340, OPS:0.780 }, pitcher: { IP:351.0, ERA:3.46, WHIP:1.12, K_BB:2.79, QS:21, SV_H:30, NW:-4 } },
-            "Multi Champion": { hitter: { R:178, HR:56, RBI:162, SB:32, K:322, OBP:0.333, OPS:0.758 }, pitcher: { IP:405.2, ERA:4.46, WHIP:1.34, K_BB:2.38, QS:24, SV_H:21, NW:-10 } },
-            "Not Seoul Mayor": { hitter: { R:213, HR:53, RBI:176, SB:11, K:312, OBP:0.343, OPS:0.774 }, pitcher: { IP:278.0, ERA:4.73, WHIP:1.44, K_BB:2.24, QS:16, SV_H:24, NW:-14 } },
-            "Orange": { hitter: { R:196, HR:47, RBI:172, SB:38, K:326, OBP:0.325, OPS:0.727 }, pitcher: { IP:359.1, ERA:3.96, WHIP:1.21, K_BB:2.73, QS:22, SV_H:16, NW:7 } },
-            "Chief Residents": { hitter: { R:164, HR:57, RBI:183, SB:22, K:286, OBP:0.337, OPS:0.788 }, pitcher: { IP:389.0, ERA:3.84, WHIP:1.32, K_BB:2.59, QS:23, SV_H:20, NW:4 } },
-            "Kook Surfer": { hitter: { R:206, HR:46, RBI:155, SB:44, K:338, OBP:0.339, OPS:0.743 }, pitcher: { IP:321.0, ERA:4.07, WHIP:1.22, K_BB:2.92, QS:20, SV_H:19, NW:0 } },
-            "Sleeping Jihoo": { hitter: { R:189, HR:48, RBI:166, SB:25, K:312, OBP:0.339, OPS:0.755 }, pitcher: { IP:383.1, ERA:4.51, WHIP:1.37, K_BB:2.31, QS:21, SV_H:26, NW:-7 } },
-            "Murry-Ker Daehyun": { hitter: { R:180, HR:49, RBI:182, SB:42, K:331, OBP:0.331, OPS:0.752 }, pitcher: { IP:379.1, ERA:3.72, WHIP:1.20, K_BB:2.65, QS:28, SV_H:2, NW:9 } },
-            "Real Twins": { hitter: { R:167, HR:47, RBI:198, SB:24, K:271, OBP:0.326, OPS:0.746 }, pitcher: { IP:288.2, ERA:3.87, WHIP:1.14, K_BB:3.04, QS:21, SV_H:16, NW:-1 } },
-            "Yubu airdoshi": { hitter: { R:158, HR:46, RBI:159, SB:15, K:323, OBP:0.325, OPS:0.719 }, pitcher: { IP:264.1, ERA:3.81, WHIP:1.26, K_BB:2.66, QS:20, SV_H:18, NW:0 } }
+        "Real Twins": {
+            rank: 4, div: "현석", wlt: "60-46-6", pct: 0.563,
+            W1_4: { hitter: { R:94, HR:29, RBI:116, SB:17, K:136, OBP:0.347, OPS:0.804 }, pitcher: { IP:165.0, ERA:3.33, WHIP:1.06, K_BB:3.54, QS:12, SV_H:11, NW:0 } },
+            W5:   { hitter: { R:121, HR:37, RBI:145, SB:17, K:177, OBP:0.335, OPS:0.782 }, pitcher: { IP:211.0, ERA:3.84, WHIP:1.10, K_BB:3.24, QS:15, SV_H:13, NW:-2 } },
+            W6:   { hitter: { R:148, HR:42, RBI:178, SB:20, K:223, OBP:0.336, OPS:0.775 }, pitcher: { IP:250.3, ERA:3.81, WHIP:1.13, K_BB:3.28, QS:18, SV_H:14, NW:0 } },
+            W7:   { hitter: { R:167, HR:47, RBI:198, SB:24, K:271, OBP:0.326, OPS:0.746 }, pitcher: { IP:288.2, ERA:3.87, WHIP:1.14, K_BB:3.04, QS:21, SV_H:16, NW:-1 } },
+            Total:{ hitter: { R:189, HR:54, RBI:218, SB:26, K:310, OBP:0.321, OPS:0.737 }, pitcher: { IP:345.3, ERA:3.70, WHIP:1.12, K_BB:3.18, QS:24, SV_H:21, NW:1 } }
         },
-        "Total": {
-            "Cho Biden": { hitter: { R:200, HR:50, RBI:199, SB:36, K:361, OBP:0.339, OPS:0.748 }, pitcher: { IP:458.0, ERA:3.97, WHIP:1.25, K_BB:2.90, QS:29, SV_H:42, NW:2 } },
-            "10 LuckyVickies": { hitter: { R:255, HR:68, RBI:186, SB:17, K:353, OBP:0.366, OPS:0.831 }, pitcher: { IP:460.3, ERA:3.25, WHIP:1.15, K_BB:2.91, QS:37, SV_H:12, NW:14 } },
-            "HanManDoo Jr.": { hitter: { R:177, HR:37, RBI:156, SB:27, K:335, OBP:0.325, OPS:0.709 }, pitcher: { IP:453.3, ERA:3.83, WHIP:1.27, K_BB:2.99, QS:23, SV_H:11, NW:2 } },
-            "daily sia": { hitter: { R:174, HR:46, RBI:179, SB:38, K:366, OBP:0.323, OPS:0.728 }, pitcher: { IP:417.3, ERA:3.43, WHIP:1.20, K_BB:2.92, QS:28, SV_H:24, NW:2 } },
-            "Make MooMool Great Again": { hitter: { R:248, HR:61, RBI:223, SB:44, K:422, OBP:0.339, OPS:0.774 }, pitcher: { IP:401.0, ERA:3.48, WHIP:1.13, K_BB:2.74, QS:23, SV_H:35, NW:-5 } },
-            "Multi Champion": { hitter: { R:200, HR:64, RBI:182, SB:35, K:363, OBP:0.332, OPS:0.758 }, pitcher: { IP:463.3, ERA:4.38, WHIP:1.32, K_BB:2.41, QS:28, SV_H:25, NW:-10 } },
-            "Not Seoul Mayor": { hitter: { R:239, HR:59, RBI:196, SB:12, K:359, OBP:0.341, OPS:0.767 }, pitcher: { IP:316.0, ERA:4.81, WHIP:1.45, K_BB:2.22, QS:17, SV_H:26, NW:-16 } },
-            "Orange": { hitter: { R:183, HR:50, RBI:199, SB:36, K:361, OBP:0.339, OPS:0.748 }, pitcher: { IP:411.3, ERA:3.96, WHIP:1.22, K_BB:2.76, QS:20, SV_H:18, NW:8 } },
-            "Chief Residents": { hitter: { R:183, HR:52, RBI:171, SB:48, K:381, OBP:0.338, OPS:0.744 }, pitcher: { IP:417.3, ERA:4.19, WHIP:1.24, K_BB:2.87, QS:21, SV_H:21, NW:0 } },
-            "Kook Surfer": { hitter: { R:227, HR:52, RBI:199, SB:36, K:365, OBP:0.327, OPS:0.728 }, pitcher: { IP:359.0, ERA:3.97, WHIP:1.25, K_BB:2.90, QS:21, SV_H:21, NW:2 } },
-            "Sleeping Jihoo": { hitter: { R:224, HR:56, RBI:199, SB:30, K:358, OBP:0.342, OPS:0.763 }, pitcher: { IP:442.3, ERA:4.41, WHIP:1.34, K_BB:2.37, QS:25, SV_H:31, NW:-7 } },
-            "Murry-Ker Daehyun": { hitter: { R:209, HR:56, RBI:210, SB:51, K:383, OBP:0.334, OPS:0.758 }, pitcher: { IP:443.0, ERA:3.70, WHIP:1.19, K_BB:2.63, QS:32, SV_H:2, NW:11 } },
-            "Real Twins": { hitter: { R:188, HR:51, RBI:221, SB:26, K:313, OBP:0.324, OPS:0.739 }, pitcher: { IP:316.3, ERA:3.96, WHIP:1.15, K_BB:3.01, QS:23, SV_H:18, NW:-3 } },
-            "Yubu airdoshi": { hitter: { R:175, HR:51, RBI:176, SB:19, K:369, OBP:0.322, OPS:0.711 }, pitcher: { IP:300.3, ERA:3.84, WHIP:1.26, K_BB:2.65, QS:22, SV_H:20, NW:-1 } }
+        "Cho Biden": {
+            rank: 5, div: "현석", wlt: "58-51-3", pct: 0.531,
+            W1_4: { hitter: { R:87, HR:24, RBI:95, SB:14, K:165, OBP:0.324, OPS:0.709 }, pitcher: { IP:223.3, ERA:3.99, WHIP:1.22, K_BB:3.22, QS:15, SV_H:17, NW:-2 } },
+            W5:   { hitter: { R:110, HR:32, RBI:124, SB:22, K:218, OBP:0.327, OPS:0.716 }, pitcher: { IP:285.0, ERA:3.98, WHIP:1.25, K_BB:3.15, QS:18, SV_H:24, NW:1 } },
+            W6:   { hitter: { R:136, HR:42, RBI:156, SB:26, K:266, OBP:0.340, OPS:0.754 }, pitcher: { IP:343.3, ERA:4.04, WHIP:1.26, K_BB:2.92, QS:21, SV_H:30, NW:0 } },
+            W7:   { hitter: { R:164, HR:46, RBI:182, SB:33, K:311, OBP:0.343, OPS:0.758 }, pitcher: { IP:409.0, ERA:3.94, WHIP:1.24, K_BB:2.93, QS:26, SV_H:37, NW:2 } },
+            Total:{ hitter: { R:203, HR:55, RBI:202, SB:42, K:357, OBP:0.346, OPS:0.771 }, pitcher: { IP:465.0, ERA:4.24, WHIP:1.26, K_BB:2.81, QS:27, SV_H:42, NW:-4 } }
+        },
+        "Multi Champion": {
+            rank: 6, div: "현석", wlt: "53-52-7", pct: 0.504,
+            W1_4: { hitter: { R:111, HR:37, RBI:93, SB:15, K:183, OBP:0.344, OPS:0.807 }, pitcher: { IP:216.7, ERA:4.53, WHIP:1.37, K_BB:2.29, QS:13, SV_H:10, NW:-5 } },
+            W5:   { hitter: { R:139, HR:45, RBI:127, SB:24, K:226, OBP:0.344, OPS:0.804 }, pitcher: { IP:267.2, ERA:4.34, WHIP:1.32, K_BB:2.46, QS:16, SV_H:14, NW:-6 } },
+            W6:   { hitter: { R:160, HR:50, RBI:144, SB:28, K:275, OBP:0.335, OPS:0.770 }, pitcher: { IP:344.3, ERA:4.73, WHIP:1.40, K_BB:2.32, QS:19, SV_H:16, NW:-8 } },
+            W7:   { hitter: { R:178, HR:56, RBI:162, SB:32, K:322, OBP:0.333, OPS:0.758 }, pitcher: { IP:405.2, ERA:4.46, WHIP:1.34, K_BB:2.38, QS:24, SV_H:21, NW:-10 } },
+            Total:{ hitter: { R:198, HR:61, RBI:177, SB:35, K:373, OBP:0.333, OPS:0.749 }, pitcher: { IP:459.0, ERA:4.41, WHIP:1.34, K_BB:2.38, QS:25, SV_H:25, NW:-7 } }
+        },
+        "Kook Surfer": {
+            rank: 7, div: "현석", wlt: "53-53-6", pct: 0.500,
+            W1_4: { hitter: { R:113, HR:24, RBI:77, SB:26, K:186, OBP:0.338, OPS:0.748 }, pitcher: { IP:169.0, ERA:3.62, WHIP:1.21, K_BB:3.03, QS:10, SV_H:12, NW:2 } },
+            W5:   { hitter: { R:140, HR:28, RBI:104, SB:32, K:248, OBP:0.333, OPS:0.722 }, pitcher: { IP:214.2, ERA:3.98, WHIP:1.22, K_BB:3.01, QS:13, SV_H:15, NW:0 } },
+            W6:   { hitter: { R:178, HR:37, RBI:130, SB:36, K:288, OBP:0.342, OPS:0.748 }, pitcher: { IP:273.7, ERA:3.85, WHIP:1.22, K_BB:2.81, QS:18, SV_H:17, NW:2 } },
+            W7:   { hitter: { R:206, HR:46, RBI:155, SB:44, K:338, OBP:0.339, OPS:0.743 }, pitcher: { IP:321.0, ERA:4.07, WHIP:1.22, K_BB:2.92, QS:20, SV_H:19, NW:0 } },
+            Total:{ hitter: { R:231, HR:50, RBI:180, SB:54, K:376, OBP:0.340, OPS:0.747 }, pitcher: { IP:377.0, ERA:3.92, WHIP:1.23, K_BB:3.01, QS:26, SV_H:22, NW:2 } }
+        },
+        "Chief Residents": {
+            rank: 8, div: "지훈", wlt: "53-50-9", pct: 0.513,
+            W1_4: { hitter: { R:85, HR:27, RBI:96, SB:13, K:162, OBP:0.336, OPS:0.753 }, pitcher: { IP:197.3, ERA:4.06, WHIP:1.31, K_BB:2.77, QS:10, SV_H:12, NW:-3 } },
+            W5:   { hitter: { R:111, HR:34, RBI:121, SB:17, K:204, OBP:0.334, OPS:0.757 }, pitcher: { IP:261.1, ERA:4.44, WHIP:1.42, K_BB:2.35, QS:13, SV_H:13, NW:-4 } },
+            W6:   { hitter: { R:135, HR:42, RBI:152, SB:21, K:243, OBP:0.333, OPS:0.765 }, pitcher: { IP:322.3, ERA:4.10, WHIP:1.38, K_BB:2.51, QS:19, SV_H:18, NW:2 } },
+            W7:   { hitter: { R:164, HR:57, RBI:183, SB:22, K:286, OBP:0.337, OPS:0.788 }, pitcher: { IP:389.0, ERA:3.84, WHIP:1.32, K_BB:2.59, QS:23, SV_H:20, NW:4 } },
+            Total:{ hitter: { R:193, HR:64, RBI:212, SB:25, K:340, OBP:0.328, OPS:0.758 }, pitcher: { IP:456.0, ERA:4.01, WHIP:1.33, K_BB:2.66, QS:27, SV_H:22, NW:1 } }
+        },
+        "daily sia": {
+            rank: 9, div: "지훈", wlt: "52-55-5", pct: 0.487,
+            W1_4: { hitter: { R:83, HR:11, RBI:76, SB:16, K:180, OBP:0.307, OPS:0.647 }, pitcher: { IP:191.7, ERA:4.18, WHIP:1.25, K_BB:2.96, QS:11, SV_H:11, NW:-4 } },
+            W5:   { hitter: { R:109, HR:23, RBI:103, SB:22, K:230, OBP:0.313, OPS:0.688 }, pitcher: { IP:253.0, ERA:3.77, WHIP:1.21, K_BB:3.02, QS:17, SV_H:14, NW:0 } },
+            W6:   { hitter: { R:139, HR:35, RBI:135, SB:26, K:271, OBP:0.321, OPS:0.727 }, pitcher: { IP:306.0, ERA:3.47, WHIP:1.21, K_BB:2.84, QS:22, SV_H:18, NW:-2 } },
+            W7:   { hitter: { R:157, HR:41, RBI:162, SB:34, K:320, OBP:0.323, OPS:0.732 }, pitcher: { IP:366.2, ERA:3.41, WHIP:1.20, K_BB:2.91, QS:25, SV_H:20, NW:1 } },
+            Total:{ hitter: { R:183, HR:51, RBI:189, SB:38, K:364, OBP:0.317, OPS:0.726 }, pitcher: { IP:437.3, ERA:3.56, WHIP:1.23, K_BB:2.79, QS:31, SV_H:24, NW:4 } }
+        },
+        "Orange": {
+            rank: 10, div: "지훈", wlt: "50-55-7", pct: 0.478,
+            W1_4: { hitter: { R:108, HR:25, RBI:93, SB:18, K:175, OBP:0.349, OPS:0.761 }, pitcher: { IP:170.0, ERA:4.76, WHIP:1.21, K_BB:2.40, QS:9, SV_H:11, NW:0 } },
+            W5:   { hitter: { R:143, HR:37, RBI:129, SB:23, K:219, OBP:0.339, OPS:0.766 }, pitcher: { IP:233.0, ERA:4.17, WHIP:1.23, K_BB:2.37, QS:14, SV_H:14, NW:5 } },
+            W6:   { hitter: { R:172, HR:42, RBI:148, SB:29, K:274, OBP:0.339, OPS:0.762 }, pitcher: { IP:304.0, ERA:3.94, WHIP:1.23, K_BB:2.59, QS:19, SV_H:15, NW:6 } },
+            W7:   { hitter: { R:196, HR:47, RBI:172, SB:38, K:326, OBP:0.325, OPS:0.727 }, pitcher: { IP:359.1, ERA:3.96, WHIP:1.21, K_BB:2.73, QS:22, SV_H:16, NW:7 } },
+            Total:{ hitter: { R:223, HR:52, RBI:197, SB:42, K:371, OBP:0.321, OPS:0.712 }, pitcher: { IP:423.7, ERA:3.93, WHIP:1.19, K_BB:2.87, QS:27, SV_H:16, NW:7 } }
+        },
+        "Make MooMool Great Again": {
+            rank: 11, div: "지훈", wlt: "48-54-10", pct: 0.473,
+            W1_4: { hitter: { R:114, HR:28, RBI:103, SB:21, K:202, OBP:0.331, OPS:0.759 }, pitcher: { IP:179.7, ERA:3.61, WHIP:1.06, K_BB:3.02, QS:11, SV_H:15, NW:1 } },
+            W5:   { hitter: { R:158, HR:39, RBI:139, SB:27, K:257, OBP:0.338, OPS:0.775 }, pitcher: { IP:236.0, ERA:3.85, WHIP:1.08, K_BB:3.10, QS:14, SV_H:21, NW:0 } },
+            W6:   { hitter: { R:194, HR:47, RBI:169, SB:33, K:319, OBP:0.341, OPS:0.780 }, pitcher: { IP:284.3, ERA:3.58, WHIP:1.10, K_BB:3.10, QS:18, SV_H:26, NW:-1 } },
+            W7:   { hitter: { R:225, HR:57, RBI:196, SB:40, K:370, OBP:0.340, OPS:0.780 }, pitcher: { IP:351.0, ERA:3.46, WHIP:1.12, K_BB:2.79, QS:21, SV_H:30, NW:-4 } },
+            Total:{ hitter: { R:251, HR:64, RBI:224, SB:45, K:412, OBP:0.344, OPS:0.788 }, pitcher: { IP:401.7, ERA:3.43, WHIP:1.14, K_BB:2.82, QS:25, SV_H:34, NW:-5 } }
+        },
+        "Yubu airdoshi": {
+            rank: 12, div: "지훈", wlt: "45-58-9", pct: 0.442,
+            W1_4: { hitter: { R:89, HR:19, RBI:89, SB:10, K:174, OBP:0.310, OPS:0.656 }, pitcher: { IP:163.7, ERA:3.90, WHIP:1.33, K_BB:2.26, QS:11, SV_H:15, NW:4 } },
+            W5:   { hitter: { R:119, HR:28, RBI:113, SB:13, K:217, OBP:0.324, OPS:0.694 }, pitcher: { IP:196.0, ERA:4.04, WHIP:1.33, K_BB:2.41, QS:13, SV_H:16, NW:1 } },
+            W6:   { hitter: { R:137, HR:35, RBI:136, SB:13, K:266, OBP:0.331, OPS:0.714 }, pitcher: { IP:234.7, ERA:4.07, WHIP:1.31, K_BB:2.50, QS:17, SV_H:18, NW:-1 } },
+            W7:   { hitter: { R:158, HR:46, RBI:159, SB:15, K:323, OBP:0.325, OPS:0.719 }, pitcher: { IP:264.1, ERA:3.81, WHIP:1.26, K_BB:2.66, QS:20, SV_H:18, NW:0 } },
+            Total:{ hitter: { R:188, HR:55, RBI:195, SB:18, K:361, OBP:0.327, OPS:0.725 }, pitcher: { IP:300.7, ERA:3.77, WHIP:1.23, K_BB:2.84, QS:22, SV_H:21, NW:1 } }
+        },
+        "HanManDoo Jr.": {
+            rank: 13, div: "현석", wlt: "43-63-6", pct: 0.411,
+            W1_4: { hitter: { R:94, HR:18, RBI:81, SB:12, K:156, OBP:0.336, OPS:0.731 }, pitcher: { IP:215.0, ERA:3.60, WHIP:1.30, K_BB:2.47, QS:10, SV_H:9, NW:2 } },
+            W5:   { hitter: { R:121, HR:26, RBI:100, SB:14, K:205, OBP:0.336, OPS:0.734 }, pitcher: { IP:273.3, ERA:3.78, WHIP:1.27, K_BB:2.79, QS:12, SV_H:9, NW:4 } },
+            W6:   { hitter: { R:136, HR:30, RBI:118, SB:19, K:255, OBP:0.328, OPS:0.715 }, pitcher: { IP:332.3, ERA:3.76, WHIP:1.27, K_BB:3.02, QS:17, SV_H:9, NW:5 } },
+            W7:   { hitter: { R:161, HR:35, RBI:143, SB:24, K:298, OBP:0.327, OPS:0.716 }, pitcher: { IP:401.1, ERA:3.81, WHIP:1.27, K_BB:3.03, QS:20, SV_H:11, NW:2 } },
+            Total:{ hitter: { R:178, HR:36, RBI:146, SB:28, K:344, OBP:0.321, OPS:0.696 }, pitcher: { IP:452.0, ERA:3.84, WHIP:1.26, K_BB:3.08, QS:24, SV_H:12, NW:3 } }
+        },
+        "Not Seoul Mayor": {
+            rank: 14, div: "지훈", wlt: "37-71-4", pct: 0.348,
+            W1_4: { hitter: { R:115, HR:29, RBI:100, SB:8, K:172, OBP:0.336, OPS:0.754 }, pitcher: { IP:150.0, ERA:4.56, WHIP:1.41, K_BB:2.16, QS:9, SV_H:10, NW:-7 } },
+            W5:   { hitter: { R:150, HR:40, RBI:131, SB:9, K:218, OBP:0.339, OPS:0.775 }, pitcher: { IP:199.0, ERA:4.52, WHIP:1.44, K_BB:2.16, QS:12, SV_H:16, NW:-7 } },
+            W6:   { hitter: { R:192, HR:48, RBI:157, SB:9, K:264, OBP:0.353, OPS:0.803 }, pitcher: { IP:230.3, ERA:4.69, WHIP:1.46, K_BB:2.19, QS:14, SV_H:19, NW:-11 } },
+            W7:   { hitter: { R:213, HR:53, RBI:176, SB:11, K:312, OBP:0.343, OPS:0.774 }, pitcher: { IP:278.0, ERA:4.73, WHIP:1.44, K_BB:2.24, QS:16, SV_H:24, NW:-14 } },
+            Total:{ hitter: { R:238, HR:58, RBI:198, SB:14, K:353, OBP:0.337, OPS:0.760 }, pitcher: { IP:314.0, ERA:4.93, WHIP:1.45, K_BB:2.18, QS:18, SV_H:27, NW:-17 } }
         }
     };
 
-    // 3. 주차별 증감 스탯 계산 함수 (비율 지표 상속, 누적 수치 연산)
+    const teamList = Object.keys(teamsDB).sort((a,b) => teamsDB[a].rank - teamsDB[b].rank);
+
+    // 2. 동적 차감 및 데이터 묶음 자동화 함수
     function buildDashboardData() {
-        const result = {
-            "Total": { hitter: {}, pitcher: {} },
-            "W1-4": { hitter: {}, pitcher: {} },
-            "W5": { hitter: {}, pitcher: {} },
-            "W6": { hitter: {}, pitcher: {} },
-            "W7": { hitter: {}, pitcher: {} },
-            "W8": { hitter: {}, pitcher: {} }
-        };
+        const result = { "Total":{hitter:{}, pitcher:{}}, "W1-4":{hitter:{}, pitcher:{}}, "W5":{hitter:{}, pitcher:{}}, "W6":{hitter:{}, pitcher:{}}, "W7":{hitter:{}, pitcher:{}}, "W8":{hitter:{}, pitcher:{}} };
 
-        const steps = [
-            { key: "W1-4", src: rawData.W1_4 },
-            { key: "W5", src: rawData.W5_Cumu, prev: rawData.W1_4 },
-            { key: "W6", src: rawData.W6_Cumu, prev: rawData.W5_Cumu },
-            { key: "W7", src: rawData.W7_Cumu, prev: rawData.W6_Cumu },
-            { key: "W8", src: rawData.Total, prev: rawData.W7_Cumu }
-        ];
-
-        // Total 데이터는 rawData.Total 구조 직접 연계
         teamList.forEach(team => {
-            ['hitter', 'pitcher'].forEach(type => {
-                Object.keys(rawData.Total[team][type]).forEach(stat => {
-                    if (!result["Total"][type][stat]) result["Total"][type][stat] = [];
-                    result["Total"][type][stat].push(rawData.Total[team][type][stat]);
-                });
-            });
-        });
+            const data = teamsDB[team];
+            // 각 주기 설정
+            const steps = [
+                { target: "W1-4", curr: data.W1_4, prev: null },
+                { target: "W5", curr: data.W5, prev: data.W1_4 },
+                { target: "W6", curr: data.W6, prev: data.W5 },
+                { target: "W7", curr: data.W7, prev: data.W6 },
+                { target: "W8", curr: data.Total, prev: data.W7 },
+                { target: "Total", curr: data.Total, prev: null }
+            ];
 
-        // 각 주차별 쪼개기 연산
-        steps.forEach(step => {
-            teamList.forEach((team, i) => {
+            steps.forEach(step => {
                 ['hitter', 'pitcher'].forEach(type => {
-                    Object.keys(step.src[team][type]).forEach(stat => {
-                        if (!result[step.key][type][stat]) result[step.key][type][stat] = [];
+                    Object.keys(step.curr[type]).forEach(stat => {
+                        if (!result[step.target][type][stat]) result[step.target][type][stat] = [];
                         
-                        const currVal = step.src[team][type][stat];
+                        const cv = step.curr[type][stat];
                         if (!step.prev || ['OBP', 'OPS', 'ERA', 'WHIP', 'K_BB'].includes(stat)) {
-                            result[step.key][type][stat].push(currVal);
+                            result[step.target][type][stat].push(cv);
                         } else {
-                            const prevVal = step.prev[team][type][stat];
-                            result[step.key][type][stat].push(Number((currVal - prevVal).toFixed(1)));
+                            const pv = step.prev[type][stat];
+                            result[step.target][type][stat].push(Number((cv - pv).toFixed(1)));
                         }
                     });
                 });
             });
         });
-
         return result;
     }
 
@@ -265,12 +262,16 @@
         return v;
     }
 
-    // 4. 전 14개 공식 카테고리 종합 운영 실력 점수 산출 로직
+    function getRank(v, arr, lowGood = false) {
+        const sorted = [...arr].sort((a, b) => lowGood ? a - b : b - a);
+        return sorted.indexOf(v) + 1;
+    }
+
+    // 3. 14개 카테고리 종합 운영 실력 산출 알고리즘
     function calcManagerPower() {
         const totalSet = calculatedData["Total"];
-        return leagueStandings.map(teamInfo => {
-            const team = teamInfo.name;
-            const idx = teamList.indexOf(team);
+        return teamList.map((team, idx) => {
+            const info = teamsDB[team];
 
             const hSum = getRank(totalSet.hitter.R[idx], totalSet.hitter.R) +
                         getRank(totalSet.hitter.HR[idx], totalSet.hitter.HR) +
@@ -289,8 +290,8 @@
                         getRank(totalSet.pitcher.NW[idx], totalSet.pitcher.NW);
 
             const avgStatRank = (hSum + pSum) / 14;
-            const score = Number((avgStatRank - teamInfo.rank).toFixed(1));
-            return { ...teamInfo, score };
+            const score = Number((avgStatRank - info.rank).toFixed(1));
+            return { name: team, ...info, score };
         }).sort((a, b) => b.score - a.score);
     }
 
@@ -307,11 +308,17 @@
         renderTable();
     }
 
+    function getGrad(r, t) {
+        const ratio = (r - 1) / (t - 1);
+        return `rgb(${Math.round(239 + (254 - 239) * ratio)}, ${Math.round(68 + (240 - 68) * ratio)}, ${Math.round(68 + (138 - 68) * ratio)})`;
+    }
+
     function renderDashboard() {
         const stat = document.getElementById('statSelect').value;
         const currentData = calculatedData[currentWeek];
         const ctx = document.getElementById('statChart').getContext('2d');
         const set = { ...currentData.hitter, ...currentData.pitcher };
+        
         const combined = teamList.map((name, i) => ({ name, val: set[stat][i] }));
         const lowGood = ['ERA', 'WHIP', 'K'].includes(stat);
         combined.sort((a, b) => lowGood ? a.val - b.val : b.val - a.val);
@@ -356,18 +363,17 @@
             <div class="manager-card"><span class="top-label">운영 실력 ${i+1}위</span><span class="team-name">${m.name}</span><div class="efficiency-score">${m.score > 0 ? '+' : ''}${m.score.toFixed(1)}</div></div>
         `).join('');
         
-        const sortedStandings = [...leagueStandings].sort((a, b) => a.rank - b.rank);
-        document.getElementById('standingsBody').innerHTML = sortedStandings.map(s => {
-            const pInfo = pow.find(p => p.name === s.name);
-            return `<tr>
+        const sortedStandings = [...pow].sort((a, b) => a.rank - b.rank);
+        document.getElementById('standingsBody').innerHTML = sortedStandings.map(s => `
+            <tr>
                 <td>${s.rank}</td>
                 <td style="text-align:left; padding-left:15px;">${s.name} <span class="division-tag ${s.div === '현석' ? 'hs-tag' : 'jh-tag'}">${s.div}</span></td>
                 <td>${s.div} 리그</td>
                 <td>${s.wlt}</td>
                 <td>${s.pct.toFixed(3)}</td>
-                <td style="color:${pInfo.score > 0 ? '#ef4444' : '#3b82f6'}">${pInfo.score > 0 ? '+' : ''}${pInfo.score.toFixed(1)}</td>
-            </tr>`;
-        }).join('');
+                <td style="color:${s.score > 0 ? '#ef4444' : '#3b82f6'}">${s.score > 0 ? '+' : ''}${s.score.toFixed(1)}</td>
+            </tr>
+        `).join('');
         renderDashboard();
     };
 </script>
