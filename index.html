@@ -39,11 +39,57 @@
         .controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; background: #f1f5f9; padding: 15px; border-radius: 12px; }
         select { padding: 10px 20px; font-size: 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; }
         .chart-container { position: relative; height: 600px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; }
+
+        /* ── 메인 탭 네비게이션 ── */
+        .main-nav { display: flex; justify-content: center; gap: 6px; margin-bottom: 36px; flex-wrap: wrap; }
+        .main-nav-btn { padding: 13px 28px; border: 2px solid #e2e8f0; border-radius: 40px; background: white; cursor: pointer; font-weight: 700; font-size: 15px; color: #64748b; transition: all 0.2s; }
+        .main-nav-btn.active { background: #0f172a; color: white; border-color: #0f172a; box-shadow: 0 4px 14px rgba(15,23,42,0.18); }
+        .main-section { display: none; }
+        .main-section.active { display: block; }
+
+        /* ── MVP/LVP 카드 ── */
+        .mvp-week-selector { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+        .mvp-week-btn { padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 20px; background: white; cursor: pointer; font-weight: 700; color: #64748b; font-size: 13px; transition: all 0.2s; }
+        .mvp-week-btn.active { background: #f59e0b; color: white; border-color: #f59e0b; }
+        .mvp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .mvp-card { border-radius: 16px; padding: 24px; position: relative; overflow: hidden; }
+        .mvp-card.gold  { background: linear-gradient(135deg, #92400e 0%, #d97706 100%); color: white; }
+        .mvp-card.silver{ background: linear-gradient(135deg, #334155 0%, #64748b 100%); color: white; }
+        .mvp-card.red   { background: linear-gradient(135deg, #7f1d1d 0%, #ef4444 100%); color: white; }
+        .mvp-card.blue  { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white; }
+        .mvp-card-badge { font-size: 11px; font-weight: 800; letter-spacing: 1px; opacity: 0.85; margin-bottom: 6px; display: block; }
+        .mvp-card-team  { font-size: 21px; font-weight: 900; margin-bottom: 10px; display: block; line-height: 1.2; }
+        .mvp-card-stat  { font-size: 13px; opacity: 0.9; line-height: 1.8; }
+        .mvp-card-icon  { position: absolute; right: 20px; top: 20px; font-size: 48px; opacity: 0.18; }
+        .mvp-record-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        .mvp-record-table th { background: #f1f5f9; padding: 10px 8px; color: #475569; font-weight: 700; border-bottom: 2px solid #cbd5e1; }
+        .mvp-record-table td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 600; }
+        .mvp-record-table tr:hover td { background: #f8fafc; }
+
+        /* ── 히트맵 ── */
+        .heatmap-section { overflow-x: auto; }
+        .heatmap-stat-selector { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .heatmap-stat-btn { padding: 7px 16px; border: 1px solid #e2e8f0; border-radius: 20px; background: white; cursor: pointer; font-weight: 700; font-size: 13px; color: #64748b; transition: all 0.2s; }
+        .heatmap-stat-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
+        .heatmap-table { border-collapse: collapse; min-width: 900px; width: 100%; font-size: 12px; }
+        .heatmap-table th { padding: 10px 6px; background: #f1f5f9; color: #475569; font-weight: 700; text-align: center; border-bottom: 2px solid #cbd5e1; white-space: nowrap; }
+        .heatmap-table td { padding: 8px 4px; text-align: center; border: 1px solid #f1f5f9; font-weight: 700; font-size: 12px; }
+        .heatmap-table .team-col { text-align: left; padding-left: 12px; white-space: nowrap; font-weight: 800; font-size: 13px; min-width: 160px; }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>⚾ MLB Fantasy Dashboard</h1>
+
+    <!-- 메인 탭 네비게이션 -->
+    <div class="main-nav">
+        <button class="main-nav-btn active" onclick="switchMain('dashboard')">📊 대시보드</button>
+        <button class="main-nav-btn" onclick="switchMain('mvp')">🏅 주간 MVP/LVP</button>
+        <button class="main-nav-btn" onclick="switchMain('heatmap')">🔥 카테고리 히트맵</button>
+    </div>
+
+    <!-- ① 기존 대시보드 섹션 -->
+    <div id="sec-dashboard" class="main-section active">
     <h2 style="text-align:center; font-size:20px; color:#475569;">🥇 로티서리 순위 TOP 3 (18주 누적)</h2>
     <div class="manager-rank-section" id="managerTop3"></div>
 
@@ -96,7 +142,36 @@
         </select>
     </div>
     <div class="chart-container"><canvas id="statChart"></canvas></div>
-</div>
+    </div><!-- /sec-dashboard -->
+
+    <!-- ② 주간 MVP / LVP 섹션 -->
+    <div id="sec-mvp" class="main-section">
+        <h2 style="text-align:center; font-size:22px; color:#0f172a; margin-bottom:6px;">🏅 주간 MVP / LVP 카드</h2>
+        <p style="text-align:center; color:#64748b; margin-bottom:24px; font-size:14px;">각 주차 타자·투수 최고/최저 팀을 자동 선정합니다</p>
+        <div class="mvp-week-selector" id="mvpWeekBtns"></div>
+        <div class="mvp-grid" id="mvpCards"></div>
+        <div style="border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; margin-top:10px;">
+            <div style="background:#0f172a; color:white; padding:12px 18px; font-weight:800; font-size:15px;">📋 주차별 전체 기록표</div>
+            <div style="overflow-x:auto;"><table class="mvp-record-table" id="mvpRecordTable"></table></div>
+        </div>
+    </div><!-- /sec-mvp -->
+
+    <!-- ③ 카테고리 히트맵 섹션 -->
+    <div id="sec-heatmap" class="main-section">
+        <h2 style="text-align:center; font-size:22px; color:#0f172a; margin-bottom:6px;">🔥 카테고리별 시즌 흐름 히트맵</h2>
+        <p style="text-align:center; color:#64748b; margin-bottom:20px; font-size:14px;">각 팀의 주차별 순위 변화를 색상으로 확인하세요 (빨강=상위, 파랑=하위) &nbsp;|&nbsp; <strong style="color:#6366f1;">전체 카테고리</strong> = 14개 스탯 순위 합산 기준</p>
+        <div class="heatmap-stat-selector" id="heatmapStatBtns"></div>
+        <div class="heatmap-section">
+            <table class="heatmap-table" id="heatmapTable"></table>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:16px; justify-content:center; font-size:13px; color:#475569;">
+            <span>1위(최고)</span>
+            <div style="width:200px; height:14px; border-radius:7px; background:linear-gradient(to right, rgb(239,68,68), rgb(254,240,138), rgb(68,240,138));"></div>
+            <span>14위(최하)</span>
+        </div>
+    </div><!-- /sec-heatmap -->
+
+</div><!-- /container -->
 
 <script>
     Chart.register(ChartDataLabels);
@@ -546,8 +621,265 @@
                     <td style="font-weight:800;color:#0f172a;">${s.rotoRank}위</td>
                 </tr>`).join('');
         renderDashboard();
+        initMVP();
+        initHeatmap();
     };
+
+    /* ════════════════════════════════════════
+       메인 탭 전환
+    ════════════════════════════════════════ */
+    function switchMain(tab) {
+        document.querySelectorAll('.main-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.main-nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('sec-'+tab).classList.add('active');
+        event.currentTarget.classList.add('active');
+
+    }
+
+    /* ════════════════════════════════════════
+       ① 주간 MVP / LVP
+    ════════════════════════════════════════ */
+    // 주차 순서 목록 (W1-4 ~ W18)
+    const weekKeys = ['W1-4','W5','W6','W7','W8','W9','W10','W11','W12','W13','W14','W15','W16','W17','W18'];
+    const weekLabels = {'W1-4':'1-4주','W5':'5주','W6':'6주','W7':'7주','W8':'8주','W9':'9주','W10':'10주','W11':'11주','W12':'12주','W13':'13주','W14':'14주','W15':'15주','W16':'16주','W17':'17주','W18':'18주'};
+
+    // 각 주차별 로티서리 순위 계산
+    function calcRotoForWeek(wk) {
+        const cd = calculatedData[wk];
+        const rateStats = ['OBP','OPS','ERA','WHIP','K_BB'];
+        return teamList.map((team, idx) => {
+            const hSum =
+                getRank(cd.hitter.R[idx],   cd.hitter.R)         +
+                getRank(cd.hitter.HR[idx],  cd.hitter.HR)        +
+                getRank(cd.hitter.RBI[idx], cd.hitter.RBI)       +
+                getRank(cd.hitter.SB[idx],  cd.hitter.SB)        +
+                getRank(cd.hitter.K[idx],   cd.hitter.K,   true) +
+                getRank(cd.hitter.OBP[idx], cd.hitter.OBP)       +
+                getRank(cd.hitter.OPS[idx], cd.hitter.OPS);
+            const pSum =
+                getRank(cd.pitcher.IP[idx],   cd.pitcher.IP)         +
+                getRank(cd.pitcher.ERA[idx],  cd.pitcher.ERA,  true) +
+                getRank(cd.pitcher.WHIP[idx], cd.pitcher.WHIP, true) +
+                getRank(cd.pitcher.K_BB[idx], cd.pitcher.K_BB)       +
+                getRank(cd.pitcher.QS[idx],   cd.pitcher.QS)         +
+                getRank(cd.pitcher.SV_H[idx], cd.pitcher.SV_H)       +
+                getRank(cd.pitcher.NW[idx],   cd.pitcher.NW);
+            return { team, hSum, pSum, total: hSum + pSum, hitterRaw: cd.hitter, pitcherRaw: cd.pitcher, idx };
+        });
+    }
+
+    function getBestWorst(arr, key='total') {
+        const sorted = [...arr].sort((a,b) => a[key]-b[key]);
+        return { best: sorted[0], worst: sorted[sorted.length-1] };
+    }
+
+    let mvpWeek = 'W18';
+
+    function initMVP() {
+        // 주차 버튼
+        const btnWrap = document.getElementById('mvpWeekBtns');
+        weekKeys.forEach(wk => {
+            const b = document.createElement('button');
+            b.className = 'mvp-week-btn' + (wk === mvpWeek ? ' active' : '');
+            b.textContent = weekLabels[wk];
+            b.onclick = () => {
+                mvpWeek = wk;
+                document.querySelectorAll('.mvp-week-btn').forEach(x=>x.classList.remove('active'));
+                b.classList.add('active');
+                renderMVP();
+            };
+            btnWrap.appendChild(b);
+        });
+        renderMVP();
+        renderMVPRecord();
+    }
+
+    function renderMVP() {
+        const wk = mvpWeek;
+        const cd = calculatedData[wk];
+        const rows = calcRotoForWeek(wk);
+        const { best: hBest, worst: hWorst } = getBestWorst(rows, 'hSum');
+        const { best: pBest, worst: pWorst } = getBestWorst(rows, 'pSum');
+
+        function fv(k,v){ return ['OBP','OPS'].includes(k)?Number(v).toFixed(3):['ERA','WHIP','K_BB'].includes(k)?Number(v).toFixed(2):k==='IP'?Number(v).toFixed(1):v; }
+
+        function makeStatLine(idx, type) {
+            const d = type==='hitter' ? cd.hitter : cd.pitcher;
+            return Object.entries(d).map(([k,arr])=>`${k}: <strong>${fv(k,arr[idx])}</strong>`).join(' &nbsp;|&nbsp; ');
+        }
+
+        const cards = [
+            { cls:'gold',   icon:'⚾', badge:'🏆 타자 MVP — '+weekLabels[wk], team: hBest.team,  stat: makeStatLine(hBest.idx, 'hitter'),  sub:`타자 로티서리 ${hBest.hSum}점 (1위)` },
+            { cls:'red',    icon:'💀', badge:'📉 타자 LVP — '+weekLabels[wk], team: hWorst.team, stat: makeStatLine(hWorst.idx,'hitter'), sub:`타자 로티서리 ${hWorst.hSum}점 (최하위)` },
+            { cls:'silver', icon:'⚡', badge:'🏆 투수 MVP — '+weekLabels[wk], team: pBest.team,  stat: makeStatLine(pBest.idx, 'pitcher'), sub:`투수 로티서리 ${pBest.pSum}점 (1위)` },
+            { cls:'blue',   icon:'🔥', badge:'📉 투수 LVP — '+weekLabels[wk], team: pWorst.team, stat: makeStatLine(pWorst.idx,'pitcher'), sub:`투수 로티서리 ${pWorst.pSum}점 (최하위)` },
+        ];
+
+        document.getElementById('mvpCards').innerHTML = cards.map(c=>`
+            <div class="mvp-card ${c.cls}">
+                <div class="mvp-card-icon">${c.icon}</div>
+                <span class="mvp-card-badge">${c.badge}</span>
+                <span class="mvp-card-team">${c.team}</span>
+                <div class="mvp-card-stat">${c.sub}<br><small style="opacity:0.8;font-size:11px;">${c.stat}</small></div>
+            </div>`).join('');
+    }
+
+    function renderMVPRecord() {
+        // 주차별 타자MVP / 타자LVP / 투수MVP / 투수LVP 팀명 표
+        let html = '<thead><tr><th>주차</th><th>⚾ 타자 MVP</th><th>💀 타자 LVP</th><th>⚡ 투수 MVP</th><th>🔥 투수 LVP</th></tr></thead><tbody>';
+        weekKeys.forEach(wk => {
+            const rows = calcRotoForWeek(wk);
+            const {best:hB,worst:hW} = getBestWorst(rows,'hSum');
+            const {best:pB,worst:pW} = getBestWorst(rows,'pSum');
+            html += `<tr>
+                <td style="font-weight:800;">${weekLabels[wk]}</td>
+                <td style="color:#d97706;font-weight:800;">${hB.team}</td>
+                <td style="color:#ef4444;font-weight:800;">${hW.team}</td>
+                <td style="color:#475569;font-weight:800;">${pB.team}</td>
+                <td style="color:#3b82f6;font-weight:800;">${pW.team}</td>
+            </tr>`;
+        });
+        html += '</tbody>';
+        document.getElementById('mvpRecordTable').innerHTML = html;
+    }
+
+    /* ════════════════════════════════════════
+       ② 카테고리별 시즌 흐름 히트맵
+    ════════════════════════════════════════ */
+    const heatmapStats = [
+        {key:'ALL', label:'전체 카테고리', type:'all',    lowGood:false},
+        {key:'R',   label:'R',            type:'hitter', lowGood:false},
+        {key:'HR',  label:'HR',           type:'hitter', lowGood:false},
+        {key:'RBI', label:'RBI',          type:'hitter', lowGood:false},
+        {key:'SB',  label:'SB',           type:'hitter', lowGood:false},
+        {key:'K',   label:'K',            type:'hitter', lowGood:true },
+        {key:'OBP', label:'OBP',          type:'hitter', lowGood:false},
+        {key:'OPS', label:'OPS',          type:'hitter', lowGood:false},
+        {key:'IP',  label:'IP',           type:'pitcher', lowGood:false},
+        {key:'ERA', label:'ERA',          type:'pitcher', lowGood:true },
+        {key:'WHIP',label:'WHIP',         type:'pitcher', lowGood:true },
+        {key:'K_BB',label:'K/BB',         type:'pitcher', lowGood:false},
+        {key:'QS',  label:'QS',           type:'pitcher', lowGood:false},
+        {key:'SV_H',label:'SV+H',         type:'pitcher', lowGood:false},
+        {key:'NW',  label:'NW',           type:'pitcher', lowGood:false},
+    ];
+    let hmStat = heatmapStats[0]; // 기본: 전체 카테고리
+
+    function getHeatColor(rank, total) {
+        const ratio = (rank-1)/(total-1);
+        if (ratio < 0.5) {
+            const t = ratio*2;
+            return `rgb(${Math.round(239+(254-239)*t)},${Math.round(68+(240-68)*t)},${Math.round(68+(138-68)*t)})`;
+        } else {
+            const t = (ratio-0.5)*2;
+            return `rgb(${Math.round(254+(68-254)*t)},${Math.round(240+(68-240)*t)},${Math.round(138+(138-68)*t-70*t)})`;
+        }
+    }
+
+    // 주차·팀별 14개 스탯 종합 순위 합산 계산
+    function calcTotalRankSum(wk, teamIdx) {
+        const cd = calculatedData[wk];
+        const statsConfig = [
+            {arr: cd.hitter.R,    low:false},{arr: cd.hitter.HR,   low:false},
+            {arr: cd.hitter.RBI,  low:false},{arr: cd.hitter.SB,   low:false},
+            {arr: cd.hitter.K,    low:true },{arr: cd.hitter.OBP,  low:false},
+            {arr: cd.hitter.OPS,  low:false},{arr: cd.pitcher.IP,  low:false},
+            {arr: cd.pitcher.ERA, low:true },{arr: cd.pitcher.WHIP,low:true },
+            {arr: cd.pitcher.K_BB,low:false},{arr: cd.pitcher.QS,  low:false},
+            {arr: cd.pitcher.SV_H,low:false},{arr: cd.pitcher.NW,  low:false},
+        ];
+        return statsConfig.reduce((sum, {arr, low}) => sum + getRank(arr[teamIdx], arr, low), 0);
+    }
+
+    function initHeatmap() {
+        const btnWrap = document.getElementById('heatmapStatBtns');
+        heatmapStats.forEach(s => {
+            const b = document.createElement('button');
+            const isAll = s.key === 'ALL';
+            b.className = 'heatmap-stat-btn' + (s.key === hmStat.key ? ' active' : '');
+            if (isAll) b.style.cssText = 'background:#6366f1;color:white;border-color:#6366f1;font-weight:900;';
+            b.textContent = s.label;
+            b.onclick = () => {
+                hmStat = s;
+                document.querySelectorAll('.heatmap-stat-btn').forEach(x => {
+                    x.classList.remove('active');
+                    x.style.cssText = '';
+                });
+                b.classList.add('active');
+                if (isAll) b.style.cssText = 'background:#6366f1;color:white;border-color:#6366f1;font-weight:900;';
+                renderHeatmap();
+            };
+            btnWrap.appendChild(b);
+        });
+        renderHeatmap();
+    }
+
+    function renderHeatmap() {
+        const { key, type, lowGood } = hmStat;
+        const isAll = key === 'ALL';
+
+        function fv(k, v) {
+            if (['OBP','OPS'].includes(k)) return Number(v).toFixed(3);
+            if (['ERA','WHIP','K_BB'].includes(k)) return Number(v).toFixed(2);
+            if (k === 'IP') return Number(v).toFixed(1);
+            return v;
+        }
+
+        let html = '<thead><tr><th class="team-col">Team</th>';
+        weekKeys.forEach(wk => { html += `<th>${weekLabels[wk]}</th>`; });
+        html += '</tr></thead><tbody>';
+
+        // 전체 카테고리: 주차별 팀 순위합 계산 후 순위 매기기
+        if (isAll) {
+            // 주차별 팀 순위합 행렬 구성
+            const rankSumMatrix = {}; // [team][wk] = rankSum
+            teamList.forEach((team, idx) => {
+                rankSumMatrix[team] = {};
+                weekKeys.forEach(wk => {
+                    rankSumMatrix[team][wk] = calcTotalRankSum(wk, idx);
+                });
+            });
+
+            teamList.forEach(team => {
+                const info = teamsDB[team];
+                html += `<tr><td class="team-col">${team} <span class="division-tag ${info.div==='현석'?'hs-tag':'jh-tag'}">${info.div}</span></td>`;
+                weekKeys.forEach(wk => {
+                    const mySum = rankSumMatrix[team][wk];
+                    // 순위합이 낮을수록 좋음 (1위)
+                    const allSums = teamList.map(t => rankSumMatrix[t][wk]);
+                    const rank = getRank(mySum, allSums, true); // lowGood=true
+                    const bg = getHeatColor(rank, 14);
+                    const isLight = rank >= 6 && rank <= 9;
+                    html += `<td style="background:${bg};color:${isLight?'#1e293b':'#fff'};font-size:11px;">
+                        ${rank}위<br><span style="opacity:0.75;font-size:10px;">합${mySum}</span>
+                    </td>`;
+                });
+                html += '</tr>';
+            });
+        } else {
+            // 개별 카테고리
+            teamList.forEach(team => {
+                const info = teamsDB[team];
+                const idx = teamList.indexOf(team);
+                html += `<tr><td class="team-col">${team} <span class="division-tag ${info.div==='현석'?'hs-tag':'jh-tag'}">${info.div}</span></td>`;
+                weekKeys.forEach(wk => {
+                    const cd = calculatedData[wk];
+                    const arr = type === 'hitter' ? cd.hitter[key] : cd.pitcher[key];
+                    const val = arr[idx];
+                    const rank = getRank(val, arr, lowGood);
+                    const bg = getHeatColor(rank, 14);
+                    const isLight = rank >= 6 && rank <= 9;
+                    html += `<td style="background:${bg};color:${isLight?'#1e293b':'#fff'};font-size:11px;">
+                        ${fv(key, val)}<br><span style="opacity:0.8;font-size:10px;">${rank}위</span>
+                    </td>`;
+                });
+                html += '</tr>';
+            });
+        }
+
+        html += '</tbody>';
+        document.getElementById('heatmapTable').innerHTML = html;
+    }
 </script>
 </body>
 </html>
-
